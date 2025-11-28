@@ -8,7 +8,12 @@
       "Bash(npm run build:*)",
       "Bash(git init:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Modernisation de la traçabilité et refonte des factures\n\n- Ajout du champ ''regle'' (Oui/Non) pour le suivi des paiements\n- Ajout du champ ''solde_restant'' modifiable par l''utilisateur\n- Séparation de ''mode_reglement'' en deux champs distincts\n- Refonte complète de l''interface de traçabilité :\n  - Affichage moderne avec cartes expandables\n  - Comparaison avant/après avec codes couleur\n  - Badges d''action avec icônes et gradients\n  - Timeline chronologique des modifications\n  - Affichage uniquement des champs modifiés\n- Nouvelles composantes : ActionBadge, FieldComparison\n- Utilitaires de formatage pour la traçabilité\n- Amélioration de l''historique des factures\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(node check-regle-column.js:*)"
     ],
     "deny": [],
     "ask": []

@@ -108,6 +108,20 @@ export function Factures() {
         if (error) throw error;
         setEditingId(null);
       } else {
+        // Vérifier si une facture existe déjà pour cette date
+        const { data: existingFactures, error: checkError } = await supabase
+          .from('factures')
+          .select('id')
+          .eq('boucherie_id', user.boucherie_id)
+          .eq('date_facture', date_facture);
+
+        if (checkError) throw checkError;
+
+        if (existingFactures && existingFactures.length > 0) {
+          showError('Une facture existe déjà pour aujourd\'hui');
+          return;
+        }
+
         const { error } = await supabase
           .from('factures')
           .insert({
