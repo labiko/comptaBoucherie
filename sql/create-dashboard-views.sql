@@ -100,7 +100,15 @@ CREATE OR REPLACE VIEW v_dashboard_week AS
 SELECT
   e.boucherie_id,
   e.date,
-  TO_CHAR(e.date, 'Dy', 'fr_FR') as jour_court,
+  CASE EXTRACT(DOW FROM e.date)
+    WHEN 0 THEN 'Dim'
+    WHEN 1 THEN 'Lun'
+    WHEN 2 THEN 'Mar'
+    WHEN 3 THEN 'Mer'
+    WHEN 4 THEN 'Jeu'
+    WHEN 5 THEN 'Ven'
+    WHEN 6 THEN 'Sam'
+  END as jour_court,
   TO_CHAR(e.date, 'DD/MM') as date_format,
   e.total
 FROM encaissements e
