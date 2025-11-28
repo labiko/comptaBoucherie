@@ -1,0 +1,28 @@
+import { NavLink } from 'react-router-dom';
+import './TabBar.css';
+
+export function TabBar() {
+  return (
+    <nav className="tab-bar">
+      <NavLink to="/" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+        <div className="tab-icon">💰</div>
+        <span className="tab-label">Encaissements</span>
+      </NavLink>
+
+      <NavLink to="/factures" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+        <div className="tab-icon">📄</div>
+        <span className="tab-label">Factures</span>
+      </NavLink>
+
+      <NavLink to="/tracabilite" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+        <div className="tab-icon">🕐</div>
+        <span className="tab-label">Traçabilité</span>
+      </NavLink>
+
+      <NavLink to="/historique" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+        <div className="tab-icon">📊</div>
+        <span className="tab-label">Historique</span>
+      </NavLink>
+    </nav>
+  );
+}

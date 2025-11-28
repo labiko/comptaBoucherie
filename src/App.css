@@ -1,0 +1,9 @@
+/* App.css - Styles pour l'application Compta Boucherie */
+
+/* Reset root styles from Vite template */
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}

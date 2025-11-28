@@ -1,0 +1,37 @@
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-label {
+  line-height: 1;
+}
+
+.action-badge.action-create {
+  background: linear-gradient(135deg, #2D7D4C 0%, #43A047 100%);
+  box-shadow: 0 2px 4px rgba(45, 125, 76, 0.3);
+}
+
+.action-badge.action-update {
+  background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%);
+  box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+}
+
+.action-badge.action-delete {
+  background: linear-gradient(135deg, #8B1538 0%, #C62828 100%);
+  box-shadow: 0 2px 4px rgba(139, 21, 56, 0.3);
+}

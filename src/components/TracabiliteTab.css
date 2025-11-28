@@ -1,0 +1,274 @@
+.tracabilite-container {
+  padding: 20px 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666666;
+  font-size: 16px;
+}
+
+/* Filters */
+.filters-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1A1A1A;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: #8B1538;
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #8B1538;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: auto;
+}
+
+.btn-refresh:hover {
+  background: #B01D47;
+}
+
+/* Logs List */
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.log-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.log-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.log-header:hover {
+  background: #FAFAFA;
+}
+
+.log-main-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-badge {
+  padding: 4px 12px;
+  background: #E0E0E0;
+  border-radius: 12px;
+  color: #1A1A1A;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.date-badge {
+  padding: 4px 12px;
+  background: #FFF5F7;
+  border-radius: 12px;
+  color: #8B1538;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.montant-badge {
+  padding: 4px 12px;
+  background: #E8F5E9;
+  border-radius: 12px;
+  color: #2D7D4C;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.log-meta-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #666666;
+  font-size: 13px;
+}
+
+.user-info {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.timestamp-info {
+  color: #999999;
+}
+
+.expand-icon {
+  transition: transform 0.2s;
+  color: #666666;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Log Details */
+.log-details {
+  padding: 0 16px 16px 16px;
+  border-top: 1px solid #EEEEEE;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.values-section {
+  margin-top: 12px;
+}
+
+.values-section h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #666666;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.values-section pre {
+  background: #F5F5F5;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1A1A1A;
+  overflow-x: auto;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state p {
+  color: #999999;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .tracabilite-container {
+    padding: 12px 0;
+  }
+
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group select {
+    width: 100%;
+  }
+
+  .btn-refresh {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .log-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .log-meta-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .values-section pre {
+    font-size: 11px;
+    padding: 8px;
+  }
+}

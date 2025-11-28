@@ -1,0 +1,336 @@
+/* Container principal */
+.factures-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 32px;
+  color: #666666;
+}
+
+.date-badge {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.date-text {
+  font-weight: 600;
+  color: #8B1538;
+  text-transform: capitalize;
+  text-align: center;
+  font-size: 16px;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+}
+
+.month-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2D7D4C;
+  text-align: center;
+}
+
+.solde-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #8B1538;
+  text-align: center;
+}
+
+/* Formulaire */
+.facture-form {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0;
+}
+
+.btn-cancel {
+  padding: 8px 16px;
+  background: #EEEEEE;
+  color: #666666;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #DDDDDD;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.form-field input,
+.form-field select {
+  padding: 10px 12px;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #1A1A1A;
+  transition: border-color 0.2s;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #8B1538;
+}
+
+.form-field input::placeholder {
+  color: #AAAAAA;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #8B1538;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  margin-top: 16px;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #B01D47;
+}
+
+/* Historique */
+.historique-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 16px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: #999999;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin: 0 -20px;
+  padding: 0 20px;
+}
+
+.factures-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.factures-table th {
+  background: #F5F5F5;
+  padding: 10px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #666666;
+  font-size: 12px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+}
+
+.factures-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #EEEEEE;
+  text-align: left;
+}
+
+.factures-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.factures-table tbody tr.clickable-row {
+  cursor: pointer;
+}
+
+.factures-table tbody tr:hover {
+  background: #FAFAFA;
+  transform: translateX(2px);
+}
+
+.factures-table .unpaid-row {
+  background: #FFF5F7;
+}
+
+.factures-table .unpaid-row:hover {
+  background: #FFE8ED;
+}
+
+.factures-table .highlighted-row {
+  background: #fffacd !important;
+  animation: highlight-pulse 0.5s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    background: #fffacd;
+  }
+  50% {
+    background: #ffeb3b;
+  }
+}
+
+.date-cell {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.fournisseur-cell {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.description-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.echeance-cell {
+  font-size: 13px;
+  color: #666666;
+}
+
+.montant-cell {
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.solde-cell {
+  font-weight: 700;
+}
+
+.solde-cell.paid {
+  color: #2D7D4C;
+}
+
+.solde-cell.unpaid {
+  color: #8B1538;
+}
+
+.regle-cell {
+  font-weight: 600;
+  text-align: center;
+}
+
+.regle-cell.paid {
+  color: #2D7D4C;
+}
+
+.regle-cell.unpaid {
+  color: #8B1538;
+}
+
+.action-cell {
+  text-align: center;
+  width: 60px;
+  padding: 12px 8px !important;
+}
+
+.edit-icon {
+  color: #8B1538;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.clickable-row:hover .edit-icon {
+  color: #B01D47;
+  transform: scale(1.1);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .factures-container {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .totals-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .factures-table {
+    font-size: 12px;
+  }
+
+  .factures-table th,
+  .factures-table td {
+    padding: 8px 4px;
+  }
+
+  .description-cell {
+    max-width: 120px;
+  }
+}

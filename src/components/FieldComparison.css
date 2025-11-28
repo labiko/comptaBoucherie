@@ -1,0 +1,83 @@
+.field-comparison {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #F5F5F5;
+}
+
+.field-comparison:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666666;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.field-values {
+  flex: 1;
+}
+
+.value-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.value-old,
+.value-new {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.value-old {
+  background: #FFE8ED;
+  color: #8B1538;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.value-new {
+  background: #E8F5E9;
+  color: #2D7D4C;
+  font-weight: 600;
+}
+
+.value-new.creation {
+  background: #E3F2FD;
+  color: #1565C0;
+}
+
+.value-old.deletion {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.arrow-icon {
+  color: #999999;
+  flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .field-comparison {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .field-label {
+    min-width: auto;
+  }
+
+  .value-change {
+    width: 100%;
+  }
+}
