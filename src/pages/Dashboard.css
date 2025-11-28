@@ -1,0 +1,258 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 24px 0;
+}
+
+.loading,
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666666;
+  font-size: 16px;
+}
+
+.error-state {
+  color: #FF6B6B;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.col-span-2 {
+  grid-column: span 2;
+}
+
+/* Stats */
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #8B1538;
+  margin: 12px 0;
+}
+
+.stat-comparisons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.stat-comparison {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.stat-comparison.positive {
+  background: #E8F5E9;
+  color: #2D7D4C;
+}
+
+.stat-comparison.negative {
+  background: #FFE8ED;
+  color: #8B1538;
+}
+
+/* Alertes */
+.alert-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: #FF6B6B;
+  margin: 8px 0;
+}
+
+.alert-montant {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 16px;
+}
+
+.success-message {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2D7D4C;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Factures en retard */
+.factures-retard-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.facture-retard-item {
+  padding: 8px 12px;
+  background: #FFF5F7;
+  border-radius: 6px;
+  border-left: 3px solid #FF6B6B;
+}
+
+.facture-retard-fournisseur {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 4px;
+}
+
+.facture-retard-details {
+  font-size: 12px;
+  color: #666666;
+}
+
+/* Objectif */
+.objectif-details {
+  margin-top: 16px;
+}
+
+.objectif-montants {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.objectif-current {
+  font-size: 24px;
+  font-weight: 700;
+  color: #8B1538;
+}
+
+.objectif-separator {
+  font-size: 20px;
+  color: #999999;
+}
+
+.objectif-target {
+  font-size: 18px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.objectif-restant {
+  text-align: center;
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Top fournisseurs */
+.top-fournisseurs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.top-fournisseur-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #F5F5F5;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.top-fournisseur-item:hover {
+  background: #EFEFEF;
+  transform: translateX(4px);
+}
+
+.top-fournisseur-rank {
+  width: 32px;
+  height: 32px;
+  background: #8B1538;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.top-fournisseur-info {
+  flex: 1;
+}
+
+.top-fournisseur-nom {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 2px;
+}
+
+.top-fournisseur-details {
+  font-size: 12px;
+  color: #666666;
+}
+
+.top-fournisseur-montant {
+  font-size: 16px;
+  font-weight: 700;
+  color: #8B1538;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .col-span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+
+  .dashboard-title {
+    font-size: 22px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .col-span-2 {
+    grid-column: span 1;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
+
+  .objectif-current {
+    font-size: 20px;
+  }
+
+  .objectif-target {
+    font-size: 16px;
+  }
+}

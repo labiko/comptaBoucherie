@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
+import { Dashboard } from './pages/Dashboard';
 import { Encaissements } from './pages/Encaissements';
 import { Factures } from './pages/Factures';
 import { Tracabilite } from './pages/Tracabilite';
@@ -28,6 +29,17 @@ function AppRoutes() {
 
       <Route
         path="/"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/encaissements"
         element={
           <ProtectedRoute>
             <Layout>

@@ -4,7 +4,12 @@ import './TabBar.css';
 export function TabBar() {
   return (
     <nav className="tab-bar">
-      <NavLink to="/" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+      <NavLink to="/" end className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+        <div className="tab-icon">📊</div>
+        <span className="tab-label">Dashboard</span>
+      </NavLink>
+
+      <NavLink to="/encaissements" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
         <div className="tab-icon">💰</div>
         <span className="tab-label">Encaissements</span>
       </NavLink>
@@ -20,7 +25,7 @@ export function TabBar() {
       </NavLink>
 
       <NavLink to="/historique" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">📊</div>
+        <div className="tab-icon">🗂️</div>
         <span className="tab-label">Historique</span>
       </NavLink>
     </nav>

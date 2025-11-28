@@ -92,3 +92,53 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
 }
+
+// Types pour le Dashboard
+
+export interface DashboardStats {
+  boucherie_id: string;
+  boucherie_nom: string;
+  recette_jour: number;
+  recette_j7: number;
+  recette_semaine_derniere: number;
+  total_mois: number;
+  total_espece: number;
+  total_cb: number;
+  total_ch_vr: number;
+  total_tr: number;
+  nb_factures_retard: number;
+  montant_factures_retard: number;
+}
+
+export interface WeekData {
+  boucherie_id: string;
+  date: string; // YYYY-MM-DD
+  jour_court: string; // Lun, Mar, Mer...
+  date_format: string; // DD/MM
+  total: number;
+}
+
+export interface FactureRetard {
+  id: string;
+  boucherie_id: string;
+  fournisseur: string;
+  montant: number;
+  solde_restant: number;
+  echeance: string;
+  description: string;
+  jours_retard: number;
+}
+
+export interface FournisseurImpaye {
+  boucherie_id: string;
+  fournisseur: string;
+  montant_total: number;
+  nb_factures: number;
+  echeance_plus_ancienne: string;
+}
+
+export interface PaymentDistribution {
+  name: string;
+  value: number;
+  color: string;
+}
