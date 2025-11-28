@@ -2,6 +2,9 @@
 -- Vues SQL pour le Dashboard
 -- =====================================================
 
+-- Début de la transaction
+BEGIN;
+
 -- Vue : Statistiques globales du dashboard
 CREATE OR REPLACE VIEW v_dashboard_stats AS
 SELECT
@@ -155,3 +158,6 @@ COMMENT ON VIEW v_dashboard_stats IS 'Statistiques globales pour le dashboard : 
 COMMENT ON VIEW v_dashboard_week IS 'Encaissements des 7 derniers jours pour le graphique hebdomadaire';
 COMMENT ON VIEW v_dashboard_factures_retard IS 'Liste des factures impayées avec plus de 30 jours de retard';
 COMMENT ON VIEW v_dashboard_top_fournisseurs_impayes IS 'Top 3 des fournisseurs avec le plus d''impayés';
+
+-- Fin de la transaction - Commit si tout s'est bien passé
+COMMIT;

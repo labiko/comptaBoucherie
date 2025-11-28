@@ -15,7 +15,6 @@ export function FieldComparison({ fieldName, oldValue, newValue }: FieldComparis
   // Détecter le type de changement
   const isCreation = oldValue === null || oldValue === undefined;
   const isDeletion = newValue === null || newValue === undefined;
-  const isModification = !isCreation && !isDeletion;
 
   return (
     <div className="field-comparison">

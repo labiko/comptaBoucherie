@@ -93,3 +93,30 @@ L'application est structurée autour de 3 onglets principaux :
 - Optimisé pour orientation portrait du téléphone
 - Montants bien visibles et lisibles
 - Pas de scroll horizontal dans les tableaux
+
+### Scripts SQL - Règles de transaction
+**IMPORTANT** : Tous les scripts SQL doivent être encapsulés dans une transaction pour garantir l'intégrité des données.
+
+**Structure obligatoire :**
+```sql
+-- Début de la transaction
+BEGIN;
+
+-- Vos requêtes SQL ici
+CREATE TABLE ...
+CREATE VIEW ...
+ALTER TABLE ...
+
+-- Fin de la transaction - Commit si tout s'est bien passé
+COMMIT;
+```
+
+**Avantages :**
+- En cas d'erreur, rollback automatique (aucune modification appliquée)
+- En cas de succès, commit automatique (toutes les modifications appliquées)
+- Garantit la cohérence des données
+- Facilite le débogage
+
+**Exemples :**
+- ✅ BON : Script avec BEGIN...COMMIT
+- ❌ MAUVAIS : Script sans transaction

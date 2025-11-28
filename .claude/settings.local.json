@@ -17,7 +17,9 @@
       "Bash(git commit:*)",
       "Bash(dir /s /b)",
       "Bash(cat:*)",
-      "Bash(claude --dangerously-skip-permissions)"
+      "Bash(claude --dangerously-skip-permissions)",
+      "Bash(node scripts/analyze-tracabilite.js:*)",
+      "Bash(node scripts/test-tracabilite-fix.js:*)"
     ],
     "deny": [],
     "ask": []

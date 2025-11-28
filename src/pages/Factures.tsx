@@ -25,7 +25,6 @@ export function Factures() {
   });
 
   const today = new Date();
-  const todayStr = format(today, 'yyyy-MM-dd');
 
   useEffect(() => {
     if (user) {

@@ -25,11 +25,11 @@ export function PaymentPieChart({ data }: PaymentPieChartProps) {
       <ResponsiveContainer>
         <PieChart>
           <Pie
-            data={filteredData}
+            data={filteredData as any}
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={(entry) => {
+            label={(entry: any) => {
               const percent = ((entry.value / total) * 100).toFixed(0);
               return `${percent}%`;
             }}
