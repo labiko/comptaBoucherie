@@ -41,11 +41,25 @@ export interface Encaissement {
   updated_at: string;
 }
 
+export interface Fournisseur {
+  id: string;
+  boucherie_id: string;
+  nom: string;
+  type: string | null; // Type de fournisseur: viande, abattoir, services, etc.
+  telephone: string | null;
+  email: string | null;
+  adresse: string | null;
+  actif: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Facture {
   id: string;
   boucherie_id: string;
   date_facture: string;
   fournisseur: string;
+  fournisseur_id: string | null;
   echeance: string;
   description: string;
   montant: number;

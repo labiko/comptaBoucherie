@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatMontant, formatMontantAvecDevise } from '../lib/format';
-import type { Facture } from '../types';
+import type { Facture, Fournisseur } from '../types';
 import { format, parseISO, startOfYear, endOfYear, startOfMonth, endOfMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import './HistoriqueFactures.css';
@@ -13,11 +13,14 @@ export function HistoriqueFactures() {
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+  const [selectedFournisseur, setSelectedFournisseur] = useState<string>('all');
   const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [fournisseurs, setFournisseurs] = useState<Fournisseur[]>([]);
 
   useEffect(() => {
     if (user) {
       loadAvailableYears();
+      loadFournisseurs();
     }
   }, [user]);
 
@@ -25,7 +28,7 @@ export function HistoriqueFactures() {
     if (user && selectedYear) {
       loadFactures();
     }
-  }, [user, selectedYear, selectedMonth]);
+  }, [user, selectedYear, selectedMonth, selectedFournisseur]);
 
   async function loadAvailableYears() {
     if (!user) return;
@@ -48,6 +51,24 @@ export function HistoriqueFactures() {
     }
   }
 
+  async function loadFournisseurs() {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('fournisseurs')
+        .select('*')
+        .eq('boucherie_id', user.boucherie_id)
+        .eq('actif', true)
+        .order('nom', { ascending: true });
+
+      if (error) throw error;
+      setFournisseurs(data || []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des fournisseurs:', error);
+    }
+  }
+
   async function loadFactures() {
     if (!user) return;
 
@@ -67,13 +88,19 @@ export function HistoriqueFactures() {
         endDate = format(endOfMonth(monthDate), 'yyyy-MM-dd');
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('factures')
         .select('*')
         .eq('boucherie_id', user.boucherie_id)
         .gte('date_facture', startDate)
-        .lte('date_facture', endDate)
-        .order('date_facture', { ascending: false });
+        .lte('date_facture', endDate);
+
+      // Filtre par fournisseur si sélectionné
+      if (selectedFournisseur !== 'all') {
+        query = query.eq('fournisseur_id', selectedFournisseur);
+      }
+
+      const { data, error } = await query.order('date_facture', { ascending: false });
 
       if (error) throw error;
       setFactures(data || []);
@@ -133,6 +160,16 @@ export function HistoriqueFactures() {
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
               {months.map(month => (
                 <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="fournisseur-selector">
+            <label>Fournisseur :</label>
+            <select value={selectedFournisseur} onChange={(e) => setSelectedFournisseur(e.target.value)}>
+              <option value="all">Tous les fournisseurs</option>
+              {fournisseurs.map(fournisseur => (
+                <option key={fournisseur.id} value={fournisseur.id}>{fournisseur.nom}</option>
               ))}
             </select>
           </div>

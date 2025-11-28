@@ -31,21 +31,24 @@
 }
 
 .year-selector,
-.month-selector {
+.month-selector,
+.fournisseur-selector {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .year-selector label,
-.month-selector label {
+.month-selector label,
+.fournisseur-selector label {
   font-size: 14px;
   font-weight: 600;
   color: #666666;
 }
 
 .year-selector select,
-.month-selector select {
+.month-selector select,
+.fournisseur-selector select {
   padding: 8px 16px;
   border: 1px solid #DDDDDD;
   border-radius: 6px;
@@ -58,8 +61,13 @@
   min-width: 150px;
 }
 
+.fournisseur-selector select {
+  min-width: 200px;
+}
+
 .year-selector select:focus,
-.month-selector select:focus {
+.month-selector select:focus,
+.fournisseur-selector select:focus {
   outline: none;
   border-color: #8B1538;
 }

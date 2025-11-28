@@ -32,63 +32,63 @@ BEGIN
   -- =====================================================
 
   -- Janvier 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-01-15', 450.00, 1200.50, 320.00, 85.00, 2055.50, v_user_id, v_user_id
+    v_boucherie_id, '2025-01-15', 450.00, 1200.50, 320.00, 85.00, v_user_id, v_user_id
   );
 
   -- Février 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-02-10', 520.00, 1350.75, 280.00, 92.50, 2243.25, v_user_id, v_user_id
+    v_boucherie_id, '2025-02-10', 520.00, 1350.75, 280.00, 92.50, v_user_id, v_user_id
   );
 
   -- Mars 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-03-20', 380.00, 1450.00, 310.00, 78.00, 2218.00, v_user_id, v_user_id
+    v_boucherie_id, '2025-03-20', 380.00, 1450.00, 310.00, 78.00, v_user_id, v_user_id
   );
 
   -- Avril 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-04-12', 490.00, 1280.25, 340.00, 88.50, 2198.75, v_user_id, v_user_id
+    v_boucherie_id, '2025-04-12', 490.00, 1280.25, 340.00, 88.50, v_user_id, v_user_id
   );
 
   -- Mai 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-05-18', 560.00, 1520.50, 295.00, 95.00, 2470.50, v_user_id, v_user_id
+    v_boucherie_id, '2025-05-18', 560.00, 1520.50, 295.00, 95.00, v_user_id, v_user_id
   );
 
   -- Juin 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-06-25', 410.00, 1390.00, 330.00, 82.00, 2212.00, v_user_id, v_user_id
+    v_boucherie_id, '2025-06-25', 410.00, 1390.00, 330.00, 82.00, v_user_id, v_user_id
   );
 
   -- Juillet 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-07-08', 480.00, 1420.75, 285.00, 90.00, 2275.75, v_user_id, v_user_id
+    v_boucherie_id, '2025-07-08', 480.00, 1420.75, 285.00, 90.00, v_user_id, v_user_id
   );
 
   -- Août 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-08-14', 530.00, 1380.50, 315.00, 87.50, 2313.00, v_user_id, v_user_id
+    v_boucherie_id, '2025-08-14', 530.00, 1380.50, 315.00, 87.50, v_user_id, v_user_id
   );
 
   -- Septembre 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-09-22', 470.00, 1460.00, 300.00, 91.00, 2321.00, v_user_id, v_user_id
+    v_boucherie_id, '2025-09-22', 470.00, 1460.00, 300.00, 91.00, v_user_id, v_user_id
   );
 
   -- Octobre 2025
-  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, total, user_id, updated_by)
+  INSERT INTO encaissements (boucherie_id, date, espece, cb, ch_vr, tr, user_id, updated_by)
   VALUES (
-    v_boucherie_id, '2025-10-30', 500.00, 1500.25, 325.00, 93.00, 2418.25, v_user_id, v_user_id
+    v_boucherie_id, '2025-10-30', 500.00, 1500.25, 325.00, 93.00, v_user_id, v_user_id
   );
 
   -- =====================================================
