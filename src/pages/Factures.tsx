@@ -15,6 +15,7 @@ export function Factures() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [formData, setFormData] = useState({
     fournisseur: '',
     description: '',
@@ -30,15 +31,15 @@ export function Factures() {
     if (user) {
       loadFactures();
     }
-  }, [user]);
+  }, [user, selectedMonth]);
 
   async function loadFactures() {
     if (!user) return;
 
     try {
       setLoading(true);
-      const monthStart = format(startOfMonth(today), 'yyyy-MM-dd');
-      const monthEnd = format(endOfMonth(today), 'yyyy-MM-dd');
+      const monthStart = format(startOfMonth(selectedMonth), 'yyyy-MM-dd');
+      const monthEnd = format(endOfMonth(selectedMonth), 'yyyy-MM-dd');
 
       const { data, error } = await supabase
         .from('factures')
@@ -223,14 +224,54 @@ export function Factures() {
     );
   }
 
+  const handlePreviousMonth = () => {
+    setSelectedMonth(prev => addMonths(prev, -1));
+  };
+
+  const handleNextMonth = () => {
+    setSelectedMonth(prev => addMonths(prev, 1));
+  };
+
+  const handleTodayMonth = () => {
+    setSelectedMonth(new Date());
+  };
+
   return (
     <div className="factures-container">
       <div className="date-badge">
-        <span className="date-text">
-          {editingFacture
-            ? `Édition de la facture du ${format(parseISO(editingFacture.date_facture), 'dd/MM/yyyy', { locale: fr })}`
-            : format(today, 'MMMM yyyy', { locale: fr })}
-        </span>
+        <div className="date-navigation">
+          <button
+            type="button"
+            onClick={handlePreviousMonth}
+            className="month-nav-btn"
+            title="Mois précédent"
+          >
+            ←
+          </button>
+          <span className="date-text">
+            {editingFacture
+              ? `Édition de la facture du ${format(parseISO(editingFacture.date_facture), 'dd/MM/yyyy', { locale: fr })}`
+              : format(selectedMonth, 'MMMM yyyy', { locale: fr })}
+          </span>
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="month-nav-btn"
+            title="Mois suivant"
+          >
+            →
+          </button>
+          {format(selectedMonth, 'yyyy-MM') !== format(today, 'yyyy-MM') && (
+            <button
+              type="button"
+              onClick={handleTodayMonth}
+              className="today-btn"
+              title="Mois actuel"
+            >
+              Aujourd'hui
+            </button>
+          )}
+        </div>
         <div className="totals-row">
           <span className="month-total">Total : {formatMontantAvecDevise(totalMois)}</span>
           <span className="solde-total">Solde : {formatMontantAvecDevise(totalSolde)}</span>

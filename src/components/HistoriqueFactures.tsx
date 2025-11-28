@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatMontant, formatMontantAvecDevise } from '../lib/format';
 import type { Facture } from '../types';
-import { format, parseISO, startOfYear, endOfYear } from 'date-fns';
+import { format, parseISO, startOfYear, endOfYear, startOfMonth, endOfMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import './HistoriqueFactures.css';
 
@@ -12,6 +12,7 @@ export function HistoriqueFactures() {
   const [factures, setFactures] = useState<Facture[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const [availableYears, setAvailableYears] = useState<number[]>([]);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export function HistoriqueFactures() {
     if (user && selectedYear) {
       loadFactures();
     }
-  }, [user, selectedYear]);
+  }, [user, selectedYear, selectedMonth]);
 
   async function loadAvailableYears() {
     if (!user) return;
@@ -52,15 +53,26 @@ export function HistoriqueFactures() {
 
     try {
       setLoading(true);
-      const yearStart = format(startOfYear(new Date(selectedYear, 0, 1)), 'yyyy-MM-dd');
-      const yearEnd = format(endOfYear(new Date(selectedYear, 11, 31)), 'yyyy-MM-dd');
+
+      let startDate, endDate;
+
+      if (selectedMonth === 'all') {
+        // Filtrer par année uniquement
+        startDate = format(startOfYear(new Date(selectedYear, 0, 1)), 'yyyy-MM-dd');
+        endDate = format(endOfYear(new Date(selectedYear, 11, 31)), 'yyyy-MM-dd');
+      } else {
+        // Filtrer par mois spécifique
+        const monthDate = new Date(selectedYear, selectedMonth as number, 1);
+        startDate = format(startOfMonth(monthDate), 'yyyy-MM-dd');
+        endDate = format(endOfMonth(monthDate), 'yyyy-MM-dd');
+      }
 
       const { data, error } = await supabase
         .from('factures')
         .select('*')
         .eq('boucherie_id', user.boucherie_id)
-        .gte('date_facture', yearStart)
-        .lte('date_facture', yearEnd)
+        .gte('date_facture', startDate)
+        .lte('date_facture', endDate)
         .order('date_facture', { ascending: false });
 
       if (error) throw error;
@@ -83,21 +95,52 @@ export function HistoriqueFactures() {
     );
   }
 
+  const months = [
+    { value: 'all', label: 'Toute l\'année' },
+    { value: 0, label: 'Janvier' },
+    { value: 1, label: 'Février' },
+    { value: 2, label: 'Mars' },
+    { value: 3, label: 'Avril' },
+    { value: 4, label: 'Mai' },
+    { value: 5, label: 'Juin' },
+    { value: 6, label: 'Juillet' },
+    { value: 7, label: 'Août' },
+    { value: 8, label: 'Septembre' },
+    { value: 9, label: 'Octobre' },
+    { value: 10, label: 'Novembre' },
+    { value: 11, label: 'Décembre' },
+  ];
+
+  const periodLabel = selectedMonth === 'all'
+    ? `${selectedYear}`
+    : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`;
+
   return (
     <div className="historique-factures-container">
       <div className="header-section">
-        <div className="year-selector">
-          <label>Année :</label>
-          <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
-            {availableYears.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
+        <div className="filters-row">
+          <div className="year-selector">
+            <label>Année :</label>
+            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+              {availableYears.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="month-selector">
+            <label>Mois :</label>
+            <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
+              {months.map(month => (
+                <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="totals-badges">
           <div className="total-badge">
-            Total {selectedYear} : {formatMontantAvecDevise(totalYear)}
+            Total {periodLabel} : {formatMontantAvecDevise(totalYear)}
           </div>
           <div className="solde-badge">
             Solde restant : {formatMontantAvecDevise(totalSolde)}
@@ -107,7 +150,7 @@ export function HistoriqueFactures() {
 
       {factures.length === 0 ? (
         <div className="empty-state">
-          <p>Aucune facture pour l'année {selectedYear}</p>
+          <p>Aucune facture pour {periodLabel}</p>
         </div>
       ) : (
         <div className="table-container">
