@@ -57,7 +57,7 @@ export async function uploadFactureImage(
     const fileName = `${boucherieId}/${factureId}.${extension}`;
 
     // Upload vers Supabase Storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(fileName, file, {
         cacheControl: '3600',
