@@ -1,6 +1,6 @@
 .encaissements-container {
-  padding: 16px;
-  max-width: 600px;
+  padding: 20px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -8,6 +8,25 @@
   text-align: center;
   padding: 32px;
   color: #666666;
+}
+
+/* Vue conditionnelle mobile/desktop */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none;
+  }
 }
 
 .date-badge {
@@ -44,6 +63,32 @@
   margin-bottom: 24px;
 }
 
+.btn-add-encaissement {
+  width: 100%;
+  padding: 14px;
+  background: #8B1538;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 48px;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(139, 21, 56, 0.2);
+}
+
+.btn-add-encaissement:hover {
+  background: #B01D47;
+  box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-add-encaissement:active {
+  transform: translateY(0);
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;
@@ -52,27 +97,56 @@
 }
 
 .form-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #1A1A1A;
   margin: 0;
 }
 
+.form-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .btn-cancel {
-  background: white;
-  color: #8B1538;
-  border: 2px solid #8B1538;
   padding: 8px 16px;
+  background: #EEEEEE;
+  color: #666666;
+  border: none;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  min-height: 36px;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
 
-.btn-cancel:active {
-  background: #f9f0f2;
+.btn-cancel:hover {
+  background: #DDDDDD;
+}
+
+.btn-close-form {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  background: #EEEEEE;
+  color: #666666;
+  border: none;
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn-close-form:hover {
+  background: #8B1538;
+  color: white;
 }
 
 .form-grid {
@@ -110,8 +184,8 @@
 
 .btn-primary {
   width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #8B1538 0%, #A52A4A 100%);
+  padding: 12px;
+  background: #8B1538;
   color: white;
   border: none;
   border-radius: 8px;
@@ -119,11 +193,18 @@
   font-weight: 600;
   cursor: pointer;
   min-height: 44px;
-  transition: transform 0.1s, box-shadow 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(139, 21, 56, 0.2);
+}
+
+.btn-primary:hover {
+  background: #B01D47;
+  box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-primary:active {
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
 .btn-secondary {
@@ -319,7 +400,237 @@
   background: #e0e0e0;
 }
 
+/* Cartes encaissements pour mobile */
+.encaissements-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.encaissement-card {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #F0F0F0;
+  overflow: hidden;
+  position: relative;
+}
+
+.encaissement-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #2D7D4C 0%, #3D9D5C 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.encaissement-card:active {
+  transform: scale(0.98);
+}
+
+.encaissement-card.today-card {
+  background: linear-gradient(135deg, #FFF5F7 0%, #FFFDFE 100%);
+  border-color: rgba(139, 21, 56, 0.15);
+}
+
+.encaissement-card.today-card::before {
+  opacity: 1;
+  background: linear-gradient(180deg, #8B1538 0%, #B01D47 100%);
+}
+
+.encaissement-card.highlighted-card {
+  background: linear-gradient(135deg, #fffacd 0%, #fffdeb 100%);
+  animation: card-highlight-pulse 0.5s ease-in-out;
+  box-shadow: 0 4px 20px rgba(255, 235, 59, 0.3);
+}
+
+@keyframes card-highlight-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.encaissement-card .card-header {
+  padding: 20px 20px 16px 20px;
+  background: linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 100%);
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.encaissement-card .card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-date-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-date-main {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1A1A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.card-date-main svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: #8B1538;
+}
+
+.today-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #8B1538 0%, #B01D47 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-total-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #2D7D4C 0%, #3D9D5C 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(45, 125, 76, 0.25);
+}
+
+.card-total-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.encaissement-card .card-body {
+  padding: 16px 20px;
+}
+
+.encaissement-card .card-amounts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.encaissement-card .amount-box {
+  background: #F8F9FA;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #EEEEEE;
+}
+
+.encaissement-card .amount-label {
+  font-size: 12px;
+  color: #999999;
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.encaissement-card .amount-label svg {
+  width: 14px;
+  height: 14px;
+}
+
+.encaissement-card .amount-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.encaissement-card .card-details {
+  margin-top: 16px;
+  padding: 16px 20px;
+  border-top: 1px solid #EEEEEE;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.encaissement-card .card-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.encaissement-card .card-detail-row.total-row {
+  padding-top: 12px;
+  border-top: 2px solid #EEEEEE;
+  margin-top: 4px;
+}
+
+.encaissement-card .detail-label {
+  color: #666666;
+  font-weight: 500;
+}
+
+.encaissement-card .detail-value {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.encaissement-card .detail-value.total {
+  color: #2D7D4C;
+  font-size: 16px;
+}
+
+.encaissement-card .card-edit-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: #8B1538;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-height: 44px;
+}
+
+.encaissement-card .card-edit-btn:active {
+  background: #B01D47;
+}
+
 /* Responsive */
+@media (max-width: 768px) {
+  .encaissements-container {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 360px) {
   .encaissements-container {
     padding: 12px;

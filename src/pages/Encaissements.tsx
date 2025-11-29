@@ -8,6 +8,129 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, parseISO } fr
 import { fr } from 'date-fns/locale';
 import './Encaissements.css';
 
+interface EncaissementCardProps {
+  encaissement: Encaissement;
+  onEdit: (encaissement: Encaissement) => void;
+  isHighlighted: boolean;
+  isToday: boolean;
+}
+
+function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: EncaissementCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div
+      className={`encaissement-card ${isToday ? 'today-card' : ''} ${isHighlighted ? 'highlighted-card' : ''}`}
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
+      <div className="card-header">
+        <div className="card-header-row">
+          <div className="card-date-wrapper">
+            <div className="card-date-main">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {format(parseISO(encaissement.date), 'dd/MM/yyyy', { locale: fr })}
+            </div>
+            {isToday && <span className="today-badge">Aujourd'hui</span>}
+          </div>
+          <div className="card-total-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            {formatMontant(encaissement.total)}
+          </div>
+        </div>
+      </div>
+
+      <div className="card-body">
+        <div className="card-amounts">
+          <div className="amount-box">
+            <div className="amount-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+              </svg>
+              Espèce
+            </div>
+            <div className="amount-value">{formatMontant(encaissement.espece)}</div>
+          </div>
+          <div className="amount-box">
+            <div className="amount-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+              CB
+            </div>
+            <div className="amount-value">{formatMontant(encaissement.cb)}</div>
+          </div>
+          <div className="amount-box">
+            <div className="amount-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              CH/VR
+            </div>
+            <div className="amount-value">{formatMontant(encaissement.ch_vr)}</div>
+          </div>
+          <div className="amount-box">
+            <div className="amount-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              TR
+            </div>
+            <div className="amount-value">{formatMontant(encaissement.tr)}</div>
+          </div>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="card-details" onClick={(e) => e.stopPropagation()}>
+          <div className="card-detail-row">
+            <span className="detail-label">Espèce:</span>
+            <span className="detail-value">{formatMontant(encaissement.espece)}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">CB:</span>
+            <span className="detail-value">{formatMontant(encaissement.cb)}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">CH/VR:</span>
+            <span className="detail-value">{formatMontant(encaissement.ch_vr)}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">TR:</span>
+            <span className="detail-value">{formatMontant(encaissement.tr)}</span>
+          </div>
+          <div className="card-detail-row total-row">
+            <span className="detail-label">Total:</span>
+            <span className="detail-value total">{formatMontant(encaissement.total)}</span>
+          </div>
+          <button
+            className="card-edit-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(encaissement);
+            }}
+          >
+            ✏️ Modifier
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Encaissements() {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
@@ -15,6 +138,7 @@ export function Encaissements() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     espece: '',
     cb: '',
@@ -191,6 +315,7 @@ export function Encaissements() {
 
   function handleEdit(encaissement: Encaissement) {
     setEditingId(encaissement.id);
+    setShowForm(true);
     setFormData({
       espece: encaissement.espece.toString(),
       cb: encaissement.cb.toString(),
@@ -208,18 +333,8 @@ export function Encaissements() {
 
   function handleCancelEdit() {
     setEditingId(null);
-    // Recharger les données du jour
-    const todayData = encaissements.find((e) => e.date === todayStr);
-    if (todayData) {
-      setFormData({
-        espece: todayData.espece.toString(),
-        cb: todayData.cb.toString(),
-        ch_vr: todayData.ch_vr.toString(),
-        tr: todayData.tr.toString(),
-      });
-    } else {
-      setFormData({ espece: '', cb: '', ch_vr: '', tr: '' });
-    }
+    setShowForm(false);
+    setFormData({ espece: '', cb: '', ch_vr: '', tr: '' });
   }
 
   function handleInputChange(field: keyof typeof formData, value: string) {
@@ -267,17 +382,35 @@ export function Encaissements() {
         </span>
       </div>
 
-      <form onSubmit={handleSubmit} className="encaissement-form">
-        <div className="form-header">
-          <h2 className="form-title">
-            {editingEncaissement ? 'Modifier l\'encaissement' : 'Saisie du jour'}
-          </h2>
-          {editingEncaissement && (
-            <button type="button" onClick={handleCancelEdit} className="btn-cancel">
-              Annuler
-            </button>
-          )}
-        </div>
+      {!showForm && (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="btn-add-encaissement"
+        >
+          ➕ Nouvelle saisie
+        </button>
+      )}
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="encaissement-form">
+          <div className="form-header">
+            <h2 className="form-title">
+              {editingEncaissement ? 'Modifier l\'encaissement' : 'Saisie du jour'}
+            </h2>
+            <div className="form-header-actions">
+              {editingEncaissement && (
+                <button type="button" onClick={handleCancelEdit} className="btn-cancel">
+                  Annuler
+                </button>
+              )}
+              {!editingEncaissement && (
+                <button type="button" onClick={() => setShowForm(false)} className="btn-close-form" title="Masquer le formulaire">
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
         <div className="form-grid">
           <div className="form-field">
@@ -341,10 +474,11 @@ export function Encaissements() {
           </div>
         </div>
 
-        <button type="submit" className="btn-primary">
-          {editingEncaissement ? 'Enregistrer les modifications' : 'Enregistrer'}
-        </button>
-      </form>
+          <button type="submit" className="btn-primary">
+            {editingEncaissement ? 'Enregistrer les modifications' : 'Enregistrer'}
+          </button>
+        </form>
+      )}
 
       <div className="totaux-section">
         <h3 className="section-title">Totaux</h3>
@@ -373,65 +507,81 @@ export function Encaissements() {
         {encaissements.length === 0 ? (
           <div className="empty-state">Aucun encaissement ce mois-ci</div>
         ) : (
-          <div className="table-container">
-            <table className="encaissements-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Espèce</th>
-                  <th>CB</th>
-                  <th>CH/VR</th>
-                  <th>TR</th>
-                  <th>Total</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {encaissements.map((enc) => (
-                  <tr
-                    key={enc.id}
-                    data-encaissement-id={enc.id}
-                    className={`${enc.date === todayStr ? 'today-row' : ''} ${highlightedId === enc.id ? 'highlighted-row' : ''} clickable-row`}
-                    onClick={() => handleEdit(enc)}
-                  >
-                    <td className="date-cell">
-                      {format(parseISO(enc.date), 'dd/MM')}
-                    </td>
-                    <td>{formatMontant(enc.espece)}</td>
-                    <td>{formatMontant(enc.cb)}</td>
-                    <td>{formatMontant(enc.ch_vr)}</td>
-                    <td>{formatMontant(enc.tr)}</td>
-                    <td className="total-cell">{formatMontant(enc.total)}</td>
-                    <td className="action-cell">
-                      <svg
-                        className="edit-icon"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </td>
+          <>
+            {/* Vue mobile - Cartes */}
+            <div className="encaissements-cards mobile-only">
+              {encaissements.map((enc) => (
+                <EncaissementCard
+                  key={enc.id}
+                  encaissement={enc}
+                  onEdit={handleEdit}
+                  isHighlighted={highlightedId === enc.id}
+                  isToday={enc.date === todayStr}
+                />
+              ))}
+            </div>
+
+            {/* Vue desktop - Tableau */}
+            <div className="table-container desktop-only">
+              <table className="encaissements-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Espèce</th>
+                    <th>CB</th>
+                    <th>CH/VR</th>
+                    <th>TR</th>
+                    <th>Total</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {encaissements.map((enc) => (
+                    <tr
+                      key={enc.id}
+                      data-encaissement-id={enc.id}
+                      className={`${enc.date === todayStr ? 'today-row' : ''} ${highlightedId === enc.id ? 'highlighted-row' : ''} clickable-row`}
+                      onClick={() => handleEdit(enc)}
+                    >
+                      <td className="date-cell">
+                        {format(parseISO(enc.date), 'dd/MM')}
+                      </td>
+                      <td>{formatMontant(enc.espece)}</td>
+                      <td>{formatMontant(enc.cb)}</td>
+                      <td>{formatMontant(enc.ch_vr)}</td>
+                      <td>{formatMontant(enc.tr)}</td>
+                      <td className="total-cell">{formatMontant(enc.total)}</td>
+                      <td className="action-cell">
+                        <svg
+                          className="edit-icon"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
