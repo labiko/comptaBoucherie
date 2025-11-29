@@ -515,17 +515,31 @@
 .factures-cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .facture-card {
   background: white;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-left: 4px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #F0F0F0;
+  overflow: hidden;
+  position: relative;
+}
+
+.facture-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #8B1538 0%, #B01D47 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .facture-card:active {
@@ -533,123 +547,203 @@
 }
 
 .facture-card.unpaid-card {
-  background: #FFF5F7;
-  border-left-color: #8B1538;
+  background: linear-gradient(135deg, #FFF5F7 0%, #FFFDFE 100%);
+  border-color: rgba(139, 21, 56, 0.15);
+}
+
+.facture-card.unpaid-card::before {
+  opacity: 1;
 }
 
 .facture-card.highlighted-card {
-  background: #fffacd;
+  background: linear-gradient(135deg, #fffacd 0%, #fffdeb 100%);
   animation: card-highlight-pulse 0.5s ease-in-out;
+  box-shadow: 0 4px 20px rgba(255, 235, 59, 0.3);
 }
 
 @keyframes card-highlight-pulse {
   0%, 100% {
-    background: #fffacd;
+    transform: scale(1);
   }
   50% {
-    background: #ffeb3b;
+    transform: scale(1.02);
   }
 }
 
 .card-header {
-  margin-bottom: 10px;
+  padding: 20px 20px 16px 20px;
+  background: linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 100%);
+  border-bottom: 1px solid #F0F0F0;
 }
 
 .card-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.card-fournisseur-wrapper {
+  flex: 1;
+  min-width: 0;
 }
 
 .card-fournisseur {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #1A1A1A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
-.card-date {
-  font-size: 14px;
+.card-fournisseur svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #8B1538;
+}
+
+.card-date-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #8B1538 0%, #B01D47 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 13px;
   font-weight: 600;
-  color: #666666;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(139, 21, 56, 0.25);
+}
+
+.card-date-badge svg {
+  width: 14px;
+  height: 14px;
 }
 
 .card-description {
   font-size: 14px;
   color: #666666;
-  line-height: 1.4;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card-description svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: #999999;
+  margin-top: 2px;
+}
+
+.card-body {
+  padding: 16px 20px;
 }
 
 .card-amounts {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.card-montant {
+.amount-box {
+  background: #F8F9FA;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #EEEEEE;
+}
+
+.amount-label {
+  font-size: 12px;
+  color: #999999;
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.amount-label svg {
+  width: 14px;
+  height: 14px;
+}
+
+.amount-value {
   font-size: 18px;
   font-weight: 700;
   color: #1A1A1A;
 }
 
-.card-separator {
-  color: #CCCCCC;
-  font-weight: 700;
-}
-
-.card-solde {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.card-solde.paid {
+.amount-value.paid {
   color: #2D7D4C;
 }
 
-.card-solde.unpaid {
+.amount-value.unpaid {
   color: #8B1538;
 }
 
 .card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
+}
+
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-size: 13px;
-}
-
-.card-regle {
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.meta-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.meta-badge.status-badge {
   background: #F5F5F5;
-}
-
-.card-regle.paid {
-  background: #E8F5E9;
-  color: #2D7D4C;
-}
-
-.card-regle.unpaid {
-  background: #FFEBEE;
-  color: #8B1538;
-}
-
-.card-mode {
   color: #666666;
-  font-weight: 500;
 }
 
-.card-pj {
-  font-size: 18px;
+.meta-badge.status-badge.paid {
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+  color: #2D7D4C;
+  border: 1px solid rgba(45, 125, 76, 0.2);
+}
+
+.meta-badge.status-badge.unpaid {
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFF5F7 100%);
+  color: #8B1538;
+  border: 1px solid rgba(139, 21, 56, 0.2);
+}
+
+.meta-badge.payment-badge {
+  background: linear-gradient(135deg, #E3F2FD 0%, #F3F8FE 100%);
+  color: #1976D2;
+  border: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+.meta-badge.attachment-badge {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFF8F3 100%);
+  color: #F57C00;
+  border: 1px solid rgba(245, 124, 0, 0.2);
   text-decoration: none;
-  transition: transform 0.2s;
 }
 
-.card-pj:active {
-  transform: scale(1.2);
+.meta-badge.attachment-badge:active {
+  transform: scale(0.95);
 }
 
 .card-details {
