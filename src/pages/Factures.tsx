@@ -9,6 +9,110 @@ import { format, startOfMonth, endOfMonth, parseISO, addMonths } from 'date-fns'
 import { fr } from 'date-fns/locale';
 import './Factures.css';
 
+interface FactureCardProps {
+  facture: Facture;
+  onEdit: (facture: Facture) => void;
+  isHighlighted: boolean;
+}
+
+function FactureCard({ facture, onEdit, isHighlighted }: FactureCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div
+      className={`facture-card ${facture.solde_restant > 0 ? 'unpaid-card' : ''} ${isHighlighted ? 'highlighted-card' : ''}`}
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
+      <div className="card-header">
+        <div className="card-header-row">
+          <span className="card-fournisseur">🏢 {facture.fournisseur}</span>
+          <span className="card-date">{format(parseISO(facture.date_facture), 'dd/MM')}</span>
+        </div>
+        <div className="card-description">{facture.description}</div>
+      </div>
+
+      <div className="card-amounts">
+        <span className="card-montant">{formatMontant(facture.montant)}</span>
+        <span className="card-separator">•</span>
+        <span className={`card-solde ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
+          Solde: {formatMontant(facture.solde_restant)}
+        </span>
+      </div>
+
+      <div className="card-meta">
+        <span className={`card-regle ${facture.regle ? 'paid' : 'unpaid'}`}>
+          {facture.regle ? 'Réglé: Oui' : 'Réglé: Non'}
+        </span>
+        <span className="card-mode">{facture.mode_reglement}</span>
+        {facture.piece_jointe && (
+          <a
+            href={facture.piece_jointe}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="card-pj"
+            onClick={(e) => e.stopPropagation()}
+            title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
+          >
+            📎
+          </a>
+        )}
+      </div>
+
+      {isExpanded && (
+        <div className="card-details" onClick={(e) => e.stopPropagation()}>
+          <div className="card-detail-row">
+            <span className="detail-label">Montant total:</span>
+            <span className="detail-value">{formatMontant(facture.montant)}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">Solde restant:</span>
+            <span className={`detail-value ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
+              {formatMontant(facture.solde_restant)}
+            </span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">Échéance:</span>
+            <span className="detail-value">{format(parseISO(facture.echeance), 'dd/MM')}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">Réglé:</span>
+            <span className={`detail-value ${facture.regle ? 'paid' : 'unpaid'}`}>
+              {facture.regle ? 'Oui' : 'Non'}
+            </span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">Mode règlement:</span>
+            <span className="detail-value">{facture.mode_reglement}</span>
+          </div>
+          {facture.piece_jointe && (
+            <div className="card-detail-row">
+              <span className="detail-label">Pièce jointe:</span>
+              <a
+                href={facture.piece_jointe}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="detail-link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                📎 Voir
+              </a>
+            </div>
+          )}
+          <button
+            className="card-edit-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(facture);
+            }}
+          >
+            ✏️ Modifier
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Factures() {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
@@ -493,90 +597,105 @@ export function Factures() {
         {factures.length === 0 ? (
           <div className="empty-state">Aucune facture ce mois-ci</div>
         ) : (
-          <div className="table-container">
-            <table className="factures-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Fournisseur</th>
-                  <th>Description</th>
-                  <th>Échéance</th>
-                  <th>Montant</th>
-                  <th>Solde</th>
-                  <th>Réglé</th>
-                  <th>Mode</th>
-                  <th>PJ</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {factures.map((facture) => (
-                  <tr
-                    key={facture.id}
-                    data-facture-id={facture.id}
-                    className={`${facture.solde_restant > 0 ? 'unpaid-row' : ''} ${highlightedId === facture.id ? 'highlighted-row' : ''} clickable-row`}
-                    onClick={() => handleEdit(facture)}
-                  >
-                    <td className="date-cell">
-                      {format(parseISO(facture.date_facture), 'dd/MM')}
-                    </td>
-                    <td className="fournisseur-cell">{facture.fournisseur}</td>
-                    <td className="description-cell">{facture.description}</td>
-                    <td className="echeance-cell">
-                      {format(parseISO(facture.echeance), 'dd/MM')}
-                    </td>
-                    <td className="montant-cell">{formatMontant(facture.montant)}</td>
-                    <td className={`solde-cell ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
-                      {formatMontant(facture.solde_restant)}
-                    </td>
-                    <td className={`regle-cell ${facture.regle ? 'paid' : 'unpaid'}`}>
-                      {facture.regle ? 'Oui' : 'Non'}
-                    </td>
-                    <td>{facture.mode_reglement}</td>
-                    <td className="pj-cell">
-                      {facture.piece_jointe && (
-                        <a
-                          href={facture.piece_jointe}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="pj-link"
-                          onClick={(e) => e.stopPropagation()}
-                          title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
-                        >
-                          📎
-                        </a>
-                      )}
-                    </td>
-                    <td className="action-cell">
-                      <svg
-                        className="edit-icon"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </td>
+          <>
+            {/* Vue mobile - Cartes */}
+            <div className="factures-cards mobile-only">
+              {factures.map((facture) => (
+                <FactureCard
+                  key={facture.id}
+                  facture={facture}
+                  onEdit={handleEdit}
+                  isHighlighted={highlightedId === facture.id}
+                />
+              ))}
+            </div>
+
+            {/* Vue desktop - Tableau */}
+            <div className="table-container desktop-only">
+              <table className="factures-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Fournisseur</th>
+                    <th>Description</th>
+                    <th>Échéance</th>
+                    <th>Montant</th>
+                    <th>Solde</th>
+                    <th>Réglé</th>
+                    <th>Mode</th>
+                    <th>PJ</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {factures.map((facture) => (
+                    <tr
+                      key={facture.id}
+                      data-facture-id={facture.id}
+                      className={`${facture.solde_restant > 0 ? 'unpaid-row' : ''} ${highlightedId === facture.id ? 'highlighted-row' : ''} clickable-row`}
+                      onClick={() => handleEdit(facture)}
+                    >
+                      <td className="date-cell">
+                        {format(parseISO(facture.date_facture), 'dd/MM')}
+                      </td>
+                      <td className="fournisseur-cell">{facture.fournisseur}</td>
+                      <td className="description-cell">{facture.description}</td>
+                      <td className="echeance-cell">
+                        {format(parseISO(facture.echeance), 'dd/MM')}
+                      </td>
+                      <td className="montant-cell">{formatMontant(facture.montant)}</td>
+                      <td className={`solde-cell ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
+                        {formatMontant(facture.solde_restant)}
+                      </td>
+                      <td className={`regle-cell ${facture.regle ? 'paid' : 'unpaid'}`}>
+                        {facture.regle ? 'Oui' : 'Non'}
+                      </td>
+                      <td>{facture.mode_reglement}</td>
+                      <td className="pj-cell">
+                        {facture.piece_jointe && (
+                          <a
+                            href={facture.piece_jointe}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="pj-link"
+                            onClick={(e) => e.stopPropagation()}
+                            title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
+                          >
+                            📎
+                          </a>
+                        )}
+                      </td>
+                      <td className="action-cell">
+                        <svg
+                          className="edit-icon"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
