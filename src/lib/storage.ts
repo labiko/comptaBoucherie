@@ -2,7 +2,7 @@
 import { supabase } from './supabase';
 
 const BUCKET_NAME = 'factures-images';
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export interface UploadResult {
@@ -27,7 +27,7 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: 'Fichier trop volumineux. Maximum 5 MB.',
+      error: 'Fichier trop volumineux. Maximum 100 MB.',
     };
   }
 
