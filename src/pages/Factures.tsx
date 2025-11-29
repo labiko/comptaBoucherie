@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { formatMontantAvecDevise, formatMontant } from '../lib/format';
+import { uploadFactureImage, deleteFactureImage, validateImageFile } from '../lib/storage';
 import type { Facture } from '../types';
 import { format, startOfMonth, endOfMonth, parseISO, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -16,6 +17,8 @@ export function Factures() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     fournisseur: '',
     description: '',
@@ -58,6 +61,32 @@ export function Factures() {
     }
   }
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setSelectedImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    // Validation
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      showError(validation.error || 'Fichier invalide');
+      e.target.value = '';
+      return;
+    }
+
+    setSelectedImage(file);
+
+    // Créer un aperçu
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
@@ -92,23 +121,38 @@ export function Factures() {
 
     try {
       if (editingId) {
+        // Mode édition
+        const updateData: any = {
+          fournisseur: formData.fournisseur,
+          description: formData.description,
+          montant,
+          solde_restant,
+          regle: formData.regle,
+          mode_reglement: formData.mode_reglement,
+          updated_by: user.id,
+        };
+
+        // Upload de l'image si une nouvelle a été sélectionnée
+        if (selectedImage) {
+          const uploadResult = await uploadFactureImage(selectedImage, user.boucherie_id, editingId);
+          if (uploadResult.success && uploadResult.url) {
+            updateData.piece_jointe = uploadResult.url;
+            updateData.piece_jointe_updated_at = new Date().toISOString();
+          } else {
+            showError(uploadResult.error || 'Erreur lors de l\'upload de l\'image');
+            return;
+          }
+        }
+
         const { error } = await supabase
           .from('factures')
-          .update({
-            fournisseur: formData.fournisseur,
-            description: formData.description,
-            montant,
-            solde_restant,
-            regle: formData.regle,
-            mode_reglement: formData.mode_reglement,
-            updated_by: user.id,
-          })
+          .update(updateData)
           .eq('id', editingId);
 
         if (error) throw error;
         setEditingId(null);
       } else {
-        // Vérifier si une facture existe déjà pour cette date
+        // Mode création
         const { data: existingFactures, error: checkError } = await supabase
           .from('factures')
           .select('id')
@@ -122,7 +166,8 @@ export function Factures() {
           return;
         }
 
-        const { error } = await supabase
+        // Créer d'abord la facture pour obtenir l'ID
+        const { data: newFacture, error: insertError } = await supabase
           .from('factures')
           .insert({
             boucherie_id: user.boucherie_id,
@@ -136,9 +181,25 @@ export function Factures() {
             mode_reglement: formData.mode_reglement,
             user_id: user.id,
             updated_by: user.id,
-          });
+          })
+          .select()
+          .single();
 
-        if (error) throw error;
+        if (insertError || !newFacture) throw insertError;
+
+        // Upload de l'image si sélectionnée
+        if (selectedImage) {
+          const uploadResult = await uploadFactureImage(selectedImage, user.boucherie_id, newFacture.id);
+          if (uploadResult.success && uploadResult.url) {
+            await supabase
+              .from('factures')
+              .update({
+                piece_jointe: uploadResult.url,
+                piece_jointe_updated_at: new Date().toISOString(),
+              })
+              .eq('id', newFacture.id);
+          }
+        }
       }
 
       const savedEditingId = editingId;
@@ -154,6 +215,8 @@ export function Factures() {
         regle: false,
         mode_reglement: 'Virement',
       });
+      setSelectedImage(null);
+      setImagePreview(null);
 
       if (savedEditingId) {
         setHighlightedId(savedEditingId);
@@ -184,6 +247,16 @@ export function Factures() {
       regle: facture.regle,
       mode_reglement: facture.mode_reglement,
     });
+
+    // Charger l'image existante si présente
+    if (facture.piece_jointe) {
+      setImagePreview(facture.piece_jointe);
+      setSelectedImage(null); // Pas de nouveau fichier sélectionné
+    } else {
+      setImagePreview(null);
+      setSelectedImage(null);
+    }
+
     setTimeout(() => {
       const formElement = document.querySelector('.facture-form');
       if (formElement) {
@@ -202,6 +275,8 @@ export function Factures() {
       regle: false,
       mode_reglement: 'Virement',
     });
+    setSelectedImage(null);
+    setImagePreview(null);
   }
 
   function handleInputChange(field: keyof typeof formData, value: string) {
@@ -372,6 +447,39 @@ export function Factures() {
               <option value="Prélèvement">Prélèvement</option>
             </select>
           </div>
+
+          <div className="form-field full-width">
+            <label htmlFor="piece_jointe">Pièce jointe (image)</label>
+            <input
+              type="file"
+              id="piece_jointe"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleImageChange}
+              className="file-input"
+            />
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="Aperçu" />
+                {editingFacture && editingFacture.piece_jointe && !selectedImage && (
+                  <div className="image-actions">
+                    <a
+                      href={editingFacture.piece_jointe}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-download"
+                    >
+                      📥 Télécharger
+                    </a>
+                    {editingFacture.piece_jointe_updated_at && (
+                      <span className="image-info">
+                        Ajoutée le {format(parseISO(editingFacture.piece_jointe_updated_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <button type="submit" className="btn-primary">
@@ -397,6 +505,7 @@ export function Factures() {
                   <th>Solde</th>
                   <th>Réglé</th>
                   <th>Mode</th>
+                  <th>PJ</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -424,6 +533,20 @@ export function Factures() {
                       {facture.regle ? 'Oui' : 'Non'}
                     </td>
                     <td>{facture.mode_reglement}</td>
+                    <td className="pj-cell">
+                      {facture.piece_jointe && (
+                        <a
+                          href={facture.piece_jointe}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="pj-link"
+                          onClick={(e) => e.stopPropagation()}
+                          title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
+                        >
+                          📎
+                        </a>
+                      )}
+                    </td>
                     <td className="action-cell">
                       <svg
                         className="edit-icon"

@@ -201,6 +201,25 @@
   color: #999999;
 }
 
+/* Pièce jointe dans tableau */
+.pj-cell {
+  text-align: center;
+  width: 50px;
+  padding: 12px 8px !important;
+}
+
+.pj-link {
+  font-size: 20px;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.pj-link:hover {
+  transform: scale(1.3);
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;

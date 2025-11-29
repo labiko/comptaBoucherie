@@ -345,6 +345,97 @@
   transform: scale(1.1);
 }
 
+/* Upload d'image */
+.file-input {
+  padding: 10px 12px !important;
+  border: 2px dashed #DDDDDD !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #FAFAFA;
+}
+
+.file-input:hover {
+  border-color: #8B1538 !important;
+  background: #FFF5F7;
+}
+
+.file-input:focus {
+  outline: none;
+  border-color: #8B1538 !important;
+  background: white;
+}
+
+.image-preview {
+  margin-top: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  max-height: 200px;
+}
+
+.image-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #FAFAFA;
+  border-top: 1px solid #EEEEEE;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #2D7D4C;
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.btn-download:hover {
+  background: #246939;
+}
+
+.image-info {
+  font-size: 12px;
+  color: #666666;
+  text-align: center;
+}
+
+/* Pièce jointe dans tableau */
+.pj-cell {
+  text-align: center;
+  width: 50px;
+  padding: 12px 8px !important;
+}
+
+.pj-link {
+  font-size: 20px;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.pj-link:hover {
+  transform: scale(1.3);
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .factures-container {

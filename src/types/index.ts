@@ -66,6 +66,8 @@ export interface Facture {
   mode_reglement: string;
   solde_restant: number;
   regle: boolean;
+  piece_jointe?: string | null; // URL de la pièce jointe (image)
+  piece_jointe_updated_at?: string | null; // Date de dernière modification de la pièce jointe
   user_id: string;
   updated_by?: string; // Utilisateur qui a modifié en dernier
   created_at: string;

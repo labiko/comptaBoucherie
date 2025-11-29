@@ -202,6 +202,7 @@ export function HistoriqueFactures() {
                 <th>Solde restant</th>
                 <th>Réglé</th>
                 <th>Mode règlement</th>
+                <th>PJ</th>
                 <th>Créé le</th>
               </tr>
             </thead>
@@ -224,6 +225,19 @@ export function HistoriqueFactures() {
                     {facture.regle ? 'Oui' : 'Non'}
                   </td>
                   <td>{facture.mode_reglement}</td>
+                  <td className="pj-cell">
+                    {facture.piece_jointe && (
+                      <a
+                        href={facture.piece_jointe}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pj-link"
+                        title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
+                      >
+                        📎
+                      </a>
+                    )}
+                  </td>
                   <td className="created-cell">
                     {format(parseISO(facture.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
                   </td>
