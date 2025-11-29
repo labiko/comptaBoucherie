@@ -123,6 +123,7 @@ export function Factures() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     fournisseur: '',
     description: '',
@@ -157,6 +158,10 @@ export function Factures() {
         .order('date_facture', { ascending: false });
 
       if (error) throw error;
+      console.log('📊 loadFactures - Données chargées:', data?.length, 'factures');
+      if (data && data.length > 0) {
+        console.log('📊 Première facture - piece_jointe:', data[0].piece_jointe);
+      }
       setFactures(data || []);
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
@@ -167,26 +172,34 @@ export function Factures() {
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    console.log('📸 handleImageChange appelé, fichier:', file);
+
     if (!file) {
       setSelectedImage(null);
       setImagePreview(null);
+      console.log('⚠️ Aucun fichier sélectionné');
       return;
     }
 
     // Validation
     const validation = validateImageFile(file);
+    console.log('✅ Validation:', validation);
+
     if (!validation.valid) {
       showError(validation.error || 'Fichier invalide');
       e.target.value = '';
+      console.error('❌ Fichier invalide:', validation.error);
       return;
     }
 
     setSelectedImage(file);
+    console.log('💾 selectedImage mis à jour avec:', file.name, file.size);
 
     // Créer un aperçu
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
+      console.log('🖼️ Aperçu créé');
     };
     reader.readAsDataURL(file);
   }
@@ -237,21 +250,36 @@ export function Factures() {
         };
 
         // Upload de l'image si une nouvelle a été sélectionnée
+        console.log('🔍 Mode édition - selectedImage:', selectedImage);
+        console.log('🔍 Mode édition - editingId:', editingId);
+
         if (selectedImage) {
+          console.log('📤 Upload de l\'image en cours...');
           const uploadResult = await uploadFactureImage(selectedImage, user.boucherie_id, editingId);
+          console.log('📤 Résultat upload:', uploadResult);
+
           if (uploadResult.success && uploadResult.url) {
             updateData.piece_jointe = uploadResult.url;
             updateData.piece_jointe_updated_at = new Date().toISOString();
+            console.log('✅ Image mise à jour:', uploadResult.url);
           } else {
+            console.error('❌ Erreur upload:', uploadResult.error);
             showError(uploadResult.error || 'Erreur lors de l\'upload de l\'image');
             return;
           }
+        } else {
+          console.log('⚠️ Aucune nouvelle image sélectionnée');
         }
 
-        const { error } = await supabase
+        console.log('💾 Données à mettre à jour:', updateData);
+
+        const { error, data: updatedData } = await supabase
           .from('factures')
           .update(updateData)
-          .eq('id', editingId);
+          .eq('id', editingId)
+          .select();
+
+        console.log('💾 Résultat de la mise à jour:', { error, updatedData });
 
         if (error) throw error;
         setEditingId(null);
@@ -321,6 +349,7 @@ export function Factures() {
       });
       setSelectedImage(null);
       setImagePreview(null);
+      setShowForm(false);
 
       if (savedEditingId) {
         setHighlightedId(savedEditingId);
@@ -342,7 +371,12 @@ export function Factures() {
   }
 
   function handleEdit(facture: Facture) {
+    console.log('🔧 handleEdit appelé pour facture:', facture.id);
+    console.log('🖼️ URL de l\'image dans facture:', facture.piece_jointe);
+    console.log('📅 piece_jointe_updated_at:', facture.piece_jointe_updated_at);
+
     setEditingId(facture.id);
+    setShowForm(true);
     setFormData({
       fournisseur: facture.fournisseur,
       description: facture.description,
@@ -354,11 +388,20 @@ export function Factures() {
 
     // Charger l'image existante si présente
     if (facture.piece_jointe) {
-      setImagePreview(facture.piece_jointe);
+      // Ajouter un cache-buster basé sur piece_jointe_updated_at pour forcer le rechargement
+      let imageUrl = facture.piece_jointe;
+      if (facture.piece_jointe_updated_at) {
+        const timestamp = new Date(facture.piece_jointe_updated_at).getTime();
+        imageUrl = `${facture.piece_jointe}?t=${timestamp}`;
+        console.log('🔄 Cache-buster ajouté:', timestamp);
+      }
+      setImagePreview(imageUrl);
       setSelectedImage(null); // Pas de nouveau fichier sélectionné
+      console.log('✅ imagePreview chargé avec:', imageUrl);
     } else {
       setImagePreview(null);
       setSelectedImage(null);
+      console.log('⚠️ Aucune image à charger');
     }
 
     setTimeout(() => {
@@ -371,6 +414,7 @@ export function Factures() {
 
   function handleCancelEdit() {
     setEditingId(null);
+    setShowForm(false);
     setFormData({
       fournisseur: '',
       description: '',
@@ -457,139 +501,158 @@ export function Factures() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="facture-form">
-        <div className="form-header">
-          <h2 className="form-title">
-            {editingFacture ? 'Modifier la facture' : 'Nouvelle facture'}
-          </h2>
-          {editingFacture && (
-            <button type="button" onClick={handleCancelEdit} className="btn-cancel">
-              Annuler
-            </button>
-          )}
-        </div>
-
-        <div className="form-grid">
-          <div className="form-field">
-            <label htmlFor="fournisseur">Fournisseur *</label>
-            <input
-              type="text"
-              id="fournisseur"
-              value={formData.fournisseur}
-              onChange={(e) => handleInputChange('fournisseur', e.target.value)}
-              placeholder="Metro, Rungis..."
-              required
-            />
-          </div>
-
-          <div className="form-field full-width">
-            <label htmlFor="description">Description *</label>
-            <input
-              type="text"
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Viande de bœuf..."
-              required
-            />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="montant">Montant (€) *</label>
-            <input
-              type="number"
-              id="montant"
-              inputMode="decimal"
-              step="0.01"
-              min="0"
-              value={formData.montant}
-              onChange={(e) => handleInputChange('montant', e.target.value)}
-              placeholder="0.00"
-              required
-            />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="solde_restant">Solde restant (€) *</label>
-            <input
-              type="number"
-              id="solde_restant"
-              inputMode="decimal"
-              step="0.01"
-              min="0"
-              value={formData.solde_restant}
-              onChange={(e) => handleInputChange('solde_restant', e.target.value)}
-              placeholder="0.00"
-              required
-            />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="regle">Réglé *</label>
-            <select
-              id="regle"
-              value={formData.regle ? 'true' : 'false'}
-              onChange={(e) => setFormData(prev => ({ ...prev, regle: e.target.value === 'true' }))}
-              required
-            >
-              <option value="false">Non</option>
-              <option value="true">Oui</option>
-            </select>
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="mode_reglement">Mode règlement *</label>
-            <select
-              id="mode_reglement"
-              value={formData.mode_reglement}
-              onChange={(e) => handleInputChange('mode_reglement', e.target.value)}
-              required
-            >
-              <option value="Espèce">Espèce</option>
-              <option value="Chèque">Chèque</option>
-              <option value="Virement">Virement</option>
-              <option value="Prélèvement">Prélèvement</option>
-            </select>
-          </div>
-
-          <div className="form-field full-width">
-            <label htmlFor="piece_jointe">Pièce jointe (image)</label>
-            <input
-              type="file"
-              id="piece_jointe"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleImageChange}
-              className="file-input"
-            />
-            {imagePreview && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Aperçu" />
-                {editingFacture && editingFacture.piece_jointe && !selectedImage && (
-                  <div className="image-actions">
-                    <a
-                      href={editingFacture.piece_jointe}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-download"
-                    >
-                      📥 Télécharger
-                    </a>
-                    {editingFacture.piece_jointe_updated_at && (
-                      <span className="image-info">
-                        Ajoutée le {format(parseISO(editingFacture.piece_jointe_updated_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <button type="submit" className="btn-primary">
-          {editingFacture ? 'Enregistrer les modifications' : 'Enregistrer'}
+      {!showForm && (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="btn-add-facture"
+        >
+          ➕ Nouvelle facture
         </button>
-      </form>
+      )}
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="facture-form">
+          <div className="form-header">
+            <h2 className="form-title">
+              {editingFacture ? 'Modifier la facture' : 'Nouvelle facture'}
+            </h2>
+            <div className="form-header-actions">
+              {editingFacture && (
+                <button type="button" onClick={handleCancelEdit} className="btn-cancel">
+                  Annuler
+                </button>
+              )}
+              {!editingFacture && (
+                <button type="button" onClick={() => setShowForm(false)} className="btn-close-form" title="Masquer le formulaire">
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="form-field">
+              <label htmlFor="fournisseur">Fournisseur *</label>
+              <input
+                type="text"
+                id="fournisseur"
+                value={formData.fournisseur}
+                onChange={(e) => handleInputChange('fournisseur', e.target.value)}
+                placeholder="Metro, Rungis..."
+                required
+              />
+            </div>
+
+            <div className="form-field full-width">
+              <label htmlFor="description">Description *</label>
+              <input
+                type="text"
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Viande de bœuf..."
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="montant">Montant (€) *</label>
+              <input
+                type="number"
+                id="montant"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                value={formData.montant}
+                onChange={(e) => handleInputChange('montant', e.target.value)}
+                placeholder="0.00"
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="solde_restant">Solde restant (€) *</label>
+              <input
+                type="number"
+                id="solde_restant"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                value={formData.solde_restant}
+                onChange={(e) => handleInputChange('solde_restant', e.target.value)}
+                placeholder="0.00"
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="regle">Réglé *</label>
+              <select
+                id="regle"
+                value={formData.regle ? 'true' : 'false'}
+                onChange={(e) => setFormData(prev => ({ ...prev, regle: e.target.value === 'true' }))}
+                required
+              >
+                <option value="false">Non</option>
+                <option value="true">Oui</option>
+              </select>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="mode_reglement">Mode règlement *</label>
+              <select
+                id="mode_reglement"
+                value={formData.mode_reglement}
+                onChange={(e) => handleInputChange('mode_reglement', e.target.value)}
+                required
+              >
+                <option value="Espèce">Espèce</option>
+                <option value="Chèque">Chèque</option>
+                <option value="Virement">Virement</option>
+                <option value="Prélèvement">Prélèvement</option>
+              </select>
+            </div>
+
+            <div className="form-field full-width">
+              <label htmlFor="piece_jointe">Pièce jointe (image)</label>
+              <input
+                type="file"
+                id="piece_jointe"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleImageChange}
+                className="file-input"
+              />
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Aperçu" />
+                  {editingFacture && editingFacture.piece_jointe && !selectedImage && (
+                    <div className="image-actions">
+                      <a
+                        href={editingFacture.piece_jointe}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-download"
+                      >
+                        📥 Télécharger
+                      </a>
+                      {editingFacture.piece_jointe_updated_at && (
+                        <span className="image-info">
+                          Ajoutée le {format(parseISO(editingFacture.piece_jointe_updated_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button type="submit" className="btn-primary">
+            {editingFacture ? 'Enregistrer les modifications' : 'Enregistrer'}
+          </button>
+        </form>
+      )}
 
       <div className="historique-section">
         <h3 className="section-title">Factures du mois</h3>
