@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import type { Boucherie } from '../types';
 import { TabBar } from './TabBar';
 import './Layout.css';
+import versionData from '../../version.json';
 
 interface LayoutProps {
   children: ReactNode;
@@ -35,7 +36,10 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="layout">
       <header className="layout-header">
-        <h1 className="app-title">{boucherie?.nom || 'Compta Boucherie'}</h1>
+        <div className="header-title">
+          <h1 className="app-title">{boucherie?.nom || 'Compta Boucherie'}</h1>
+          <span className="app-version">v{versionData.version}</span>
+        </div>
         {user && (
           <div className="header-user">
             <span className="user-name">{user.nom}</span>
