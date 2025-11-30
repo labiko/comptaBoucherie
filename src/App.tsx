@@ -7,9 +7,7 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Encaissements } from './pages/Encaissements';
 import { Factures } from './pages/Factures';
-import { Tracabilite } from './pages/Tracabilite';
 import { Historique } from './pages/Historique';
-import { Comptabilite } from './pages/Comptabilite';
 import './App.css';
 
 import type { ReactElement } from 'react';
@@ -63,17 +61,6 @@ function AppRoutes() {
       />
 
       <Route
-        path="/tracabilite"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Tracabilite />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/historique"
         element={
           <ProtectedRoute>
@@ -86,13 +73,7 @@ function AppRoutes() {
 
       <Route
         path="/comptabilite"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Comptabilite />
-            </Layout>
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/historique" replace />}
       />
     </Routes>
   );
