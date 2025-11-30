@@ -25,7 +25,10 @@
       "Bash(findstr:*)",
       "Bash(git stash:*)",
       "Bash(node scripts/add-mobile-column.js:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(supabase --version:*)",
+      "Bash(npx supabase:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

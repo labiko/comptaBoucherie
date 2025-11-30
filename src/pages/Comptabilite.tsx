@@ -17,6 +17,9 @@ export function Comptabilite() {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailComptable, setEmailComptable] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Sélection du mois/année
   const currentDate = new Date();
@@ -136,14 +139,19 @@ export function Comptabilite() {
     setLoading(true);
 
     try {
-      // Générer le CSV
-      const csvContent = generateFacturesCsv(factures);
-      const filename = generateCsvFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
+      // Générer l'Excel
+      const excelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
+      const filename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
+
+      // Convertir ArrayBuffer en base64 pour l'email
+      const base64Excel = btoa(
+        new Uint8Array(excelBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
 
       // Envoyer l'email (simulation pour l'instant)
       const emailResult = await sendFacturesCsvEmail(
         boucherie.email_comptable,
-        csvContent,
+        base64Excel,
         filename,
         selectedMois,
         selectedAnnee,
@@ -164,21 +172,19 @@ export function Comptabilite() {
       );
 
       if (emailResult.success) {
-        alert('✅ Factures envoyées avec succès !\n\nNote: Pour l\'instant, l\'email est simulé. Le fichier CSV sera téléchargé localement.');
-
-        // Télécharger le CSV localement pour tester
-        downloadCsv(csvContent, filename);
-
+        setShowSuccessModal(true);
         // Recharger l'historique
         await loadEnvoisHistory();
         setShowPreview(false);
       } else {
-        alert('❌ Erreur lors de l\'envoi: ' + emailResult.error);
+        setErrorMessage(emailResult.error || 'Erreur inconnue lors de l\'envoi');
+        setShowErrorModal(true);
       }
 
     } catch (error) {
       console.error('Erreur génération/envoi:', error);
-      alert('Erreur lors de la génération ou de l\'envoi');
+      setErrorMessage(error instanceof Error ? error.message : 'Erreur lors de la génération ou de l\'envoi');
+      setShowErrorModal(true);
     } finally {
       setLoading(false);
     }
@@ -364,6 +370,26 @@ export function Comptabilite() {
           confirmVariant="primary"
           onConfirm={handleGenerateAndSend}
           onCancel={() => setShowConfirmModal(false)}
+        />
+
+        <ConfirmModal
+          isOpen={showSuccessModal}
+          title="localhost:5174 indique"
+          message="Factures envoyées avec succès !"
+          confirmText="OK"
+          confirmVariant="success"
+          onConfirm={() => setShowSuccessModal(false)}
+          onCancel={() => setShowSuccessModal(false)}
+        />
+
+        <ConfirmModal
+          isOpen={showErrorModal}
+          title="localhost:5174 indique"
+          message={`Erreur lors de l'envoi: ${errorMessage}`}
+          confirmText="OK"
+          confirmVariant="danger"
+          onConfirm={() => setShowErrorModal(false)}
+          onCancel={() => setShowErrorModal(false)}
         />
 
         {/* Section Historique */}

@@ -1,0 +1,7 @@
+{
+  "to": "diallo.labico@hotmail.fr",
+  "subject": "Test Email - Boucherie Compta",
+  "html": "<h2>Test Email Boucherie Compta</h2><p>Bonjour,</p><p>Ceci est un email de test envoyé depuis votre application <strong>Boucherie Compta</strong>.</p><p>Le système d'envoi d'emails avec pièces jointes Excel fonctionne correctement !</p><p>Cordialement,<br/>Boucherie Compta</p>",
+  "attachmentBase64": "UEsDBBQACAgIAAAAIQAAAAAAAAAAAAAAAA==",
+  "attachmentFilename": "test-factures.xlsx"
+}

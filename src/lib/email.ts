@@ -3,22 +3,18 @@ import { supabase } from './supabase';
 import type { EnvoiComptabilite } from '../types';
 
 /**
- * Envoie un email avec le CSV des factures en pièce jointe
- * Note: Cette fonction nécessite une configuration Supabase Edge Function
- * Pour l'instant, elle simule l'envoi et retourne un résultat
+ * Envoie un email avec le fichier Excel des factures en pièce jointe
+ * Utilise Supabase Edge Function + Resend API
  */
 export async function sendFacturesCsvEmail(
   emailDestinataire: string,
-  csvContent: string,
+  excelBase64: string,
   filename: string,
   mois: number,
   annee: number,
   boucherieNom: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // TODO: Implémenter l'envoi réel via Supabase Edge Function
-    // Pour l'instant, on simule l'envoi
-
     const moisNoms = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
@@ -26,18 +22,40 @@ export async function sendFacturesCsvEmail(
 
     const subject = `Factures ${moisNoms[mois - 1]} ${annee} - ${boucherieNom}`;
 
-    console.log('📧 Simulation envoi email:', {
-      to: emailDestinataire,
-      subject,
-      attachment: filename,
-      csvLines: csvContent.split('\n').length
+    const html = `
+      <h2>Factures ${moisNoms[mois - 1]} ${annee}</h2>
+      <p>Bonjour,</p>
+      <p>Veuillez trouver ci-joint le fichier Excel des factures pour <strong>${moisNoms[mois - 1]} ${annee}</strong> de la boucherie <strong>${boucherieNom}</strong>.</p>
+      <p>Cordialement,<br/>Boucherie Compta</p>
+    `;
+
+    // Appel de la Edge Function Supabase
+    const { data, error } = await supabase.functions.invoke('send-email', {
+      body: {
+        to: emailDestinataire,
+        subject,
+        html,
+        attachmentBase64: excelBase64,
+        attachmentFilename: filename
+      }
     });
 
-    // Simulation d'un délai réseau
-    await new Promise(resolve => setTimeout(resolve, 500));
+    if (error) {
+      console.error('Erreur Edge Function:', error);
+      return {
+        success: false,
+        error: error.message || 'Erreur lors de l\'envoi de l\'email'
+      };
+    }
 
-    // Pour l'instant, on retourne toujours un succès
-    // Dans une vraie implémentation, il faudrait appeler une Edge Function
+    if (!data?.success) {
+      return {
+        success: false,
+        error: data?.error || 'Erreur inconnue lors de l\'envoi'
+      };
+    }
+
+    console.log('✅ Email envoyé avec succès:', data.messageId);
     return { success: true };
 
   } catch (error) {
