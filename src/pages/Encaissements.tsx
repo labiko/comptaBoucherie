@@ -42,7 +42,7 @@ function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: Enca
               <line x1="12" y1="1" x2="12" y2="23"/>
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
-            {formatMontant(encaissement.total)}
+            {formatMontantAvecDevise(encaissement.total)}
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@ function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: Enca
               </svg>
               Espèce
             </div>
-            <div className="amount-value">{formatMontant(encaissement.espece)}</div>
+            <div className="amount-value">{formatMontantAvecDevise(encaissement.espece)}</div>
           </div>
           <div className="amount-box">
             <div className="amount-label">
@@ -68,7 +68,7 @@ function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: Enca
               </svg>
               CB
             </div>
-            <div className="amount-value">{formatMontant(encaissement.cb)}</div>
+            <div className="amount-value">{formatMontantAvecDevise(encaissement.cb)}</div>
           </div>
           <div className="amount-box">
             <div className="amount-label">
@@ -80,7 +80,7 @@ function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: Enca
               </svg>
               CH/VR
             </div>
-            <div className="amount-value">{formatMontant(encaissement.ch_vr)}</div>
+            <div className="amount-value">{formatMontantAvecDevise(encaissement.ch_vr)}</div>
           </div>
           <div className="amount-box">
             <div className="amount-label">
@@ -89,7 +89,7 @@ function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: Enca
               </svg>
               TR
             </div>
-            <div className="amount-value">{formatMontant(encaissement.tr)}</div>
+            <div className="amount-value">{formatMontantAvecDevise(encaissement.tr)}</div>
           </div>
         </div>
       </div>
@@ -98,23 +98,23 @@ function EncaissementCard({ encaissement, onEdit, isHighlighted, isToday }: Enca
         <div className="card-details" onClick={(e) => e.stopPropagation()}>
           <div className="card-detail-row">
             <span className="detail-label">Espèce:</span>
-            <span className="detail-value">{formatMontant(encaissement.espece)}</span>
+            <span className="detail-value">{formatMontantAvecDevise(encaissement.espece)}</span>
           </div>
           <div className="card-detail-row">
             <span className="detail-label">CB:</span>
-            <span className="detail-value">{formatMontant(encaissement.cb)}</span>
+            <span className="detail-value">{formatMontantAvecDevise(encaissement.cb)}</span>
           </div>
           <div className="card-detail-row">
             <span className="detail-label">CH/VR:</span>
-            <span className="detail-value">{formatMontant(encaissement.ch_vr)}</span>
+            <span className="detail-value">{formatMontantAvecDevise(encaissement.ch_vr)}</span>
           </div>
           <div className="card-detail-row">
             <span className="detail-label">TR:</span>
-            <span className="detail-value">{formatMontant(encaissement.tr)}</span>
+            <span className="detail-value">{formatMontantAvecDevise(encaissement.tr)}</span>
           </div>
           <div className="card-detail-row total-row">
             <span className="detail-label">Total:</span>
-            <span className="detail-value total">{formatMontant(encaissement.total)}</span>
+            <span className="detail-value total">{formatMontantAvecDevise(encaissement.total)}</span>
           </div>
           <button
             className="card-edit-btn"
@@ -508,8 +508,8 @@ export function Encaissements() {
           <div className="empty-state">Aucun encaissement ce mois-ci</div>
         ) : (
           <>
-            {/* Vue mobile - Cartes */}
-            <div className="encaissements-cards mobile-only">
+            {/* Vue cartes */}
+            <div className="encaissements-cards">
               {encaissements.map((enc) => (
                 <EncaissementCard
                   key={enc.id}
@@ -521,8 +521,8 @@ export function Encaissements() {
               ))}
             </div>
 
-            {/* Vue desktop - Tableau */}
-            <div className="table-container desktop-only">
+            {/* Vue tableau (masquée, conservée pour référence future) */}
+            <div className="table-container" style={{ display: 'none' }}>
               <table className="encaissements-table">
                 <thead>
                   <tr>

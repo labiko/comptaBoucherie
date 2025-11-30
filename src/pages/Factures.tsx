@@ -66,7 +66,7 @@ function FactureCard({ facture, onEdit, isHighlighted }: FactureCardProps) {
               </svg>
               Montant total
             </div>
-            <div className="amount-value">{formatMontant(facture.montant)}</div>
+            <div className="amount-value">{formatMontantAvecDevise(facture.montant)}</div>
           </div>
           <div className="amount-box">
             <div className="amount-label">
@@ -77,7 +77,7 @@ function FactureCard({ facture, onEdit, isHighlighted }: FactureCardProps) {
               Solde restant
             </div>
             <div className={`amount-value ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
-              {formatMontant(facture.solde_restant)}
+              {formatMontantAvecDevise(facture.solde_restant)}
             </div>
           </div>
         </div>
@@ -122,12 +122,12 @@ function FactureCard({ facture, onEdit, isHighlighted }: FactureCardProps) {
         <div className="card-details" onClick={(e) => e.stopPropagation()}>
           <div className="card-detail-row">
             <span className="detail-label">Montant total:</span>
-            <span className="detail-value">{formatMontant(facture.montant)}</span>
+            <span className="detail-value">{formatMontantAvecDevise(facture.montant)}</span>
           </div>
           <div className="card-detail-row">
             <span className="detail-label">Solde restant:</span>
             <span className={`detail-value ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
-              {formatMontant(facture.solde_restant)}
+              {formatMontantAvecDevise(facture.solde_restant)}
             </span>
           </div>
           <div className="card-detail-row">
@@ -721,8 +721,8 @@ export function Factures() {
           <div className="empty-state">Aucune facture ce mois-ci</div>
         ) : (
           <>
-            {/* Vue mobile - Cartes */}
-            <div className="factures-cards mobile-only">
+            {/* Vue cartes */}
+            <div className="factures-cards">
               {factures.map((facture) => (
                 <FactureCard
                   key={facture.id}
@@ -733,8 +733,8 @@ export function Factures() {
               ))}
             </div>
 
-            {/* Vue desktop - Tableau */}
-            <div className="table-container desktop-only">
+            {/* Vue tableau (masquée, conservée pour référence future) */}
+            <div className="table-container" style={{ display: 'none' }}>
               <table className="factures-table">
                 <thead>
                   <tr>
