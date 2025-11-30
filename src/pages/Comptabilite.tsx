@@ -13,6 +13,8 @@ export function Comptabilite() {
   const [boucherie, setBoucherie] = useState<Boucherie | null>(null);
   const [loading, setLoading] = useState(false);
   const [envoisHistory, setEnvoisHistory] = useState<EnvoiComptabilite[]>([]);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [emailComptable, setEmailComptable] = useState('');
 
   // Sélection du mois/année
   const currentDate = new Date();
@@ -44,6 +46,27 @@ export function Comptabilite() {
 
     if (data) {
       setBoucherie(data as Boucherie);
+      setEmailComptable(data.email_comptable || '');
+    }
+  }
+
+  async function handleSaveEmail() {
+    if (!user?.boucherie_id) return;
+
+    try {
+      const { error } = await supabase
+        .from('boucheries')
+        .update({ email_comptable: emailComptable })
+        .eq('id', user.boucherie_id);
+
+      if (error) throw error;
+
+      // Recharger les données de la boucherie
+      await loadBoucherie();
+      setIsEditingEmail(false);
+    } catch (error) {
+      console.error('Erreur sauvegarde email:', error);
+      alert('Erreur lors de la sauvegarde de l\'email');
     }
   }
 
@@ -171,12 +194,63 @@ export function Comptabilite() {
     <div className="comptabilite-page">
       <div className="page-header">
         <h1>📊 Envoi Comptabilité</h1>
-        {boucherie?.email_comptable && (
-          <p className="email-comptable">📧 {boucherie.email_comptable}</p>
-        )}
-        {!boucherie?.email_comptable && (
-          <p className="email-comptable warning">⚠️ Aucun email comptable configuré</p>
-        )}
+        <div className="email-comptable-container">
+          {!isEditingEmail ? (
+            <div className="email-display">
+              {boucherie?.email_comptable ? (
+                <>
+                  <span className="email-comptable">📧 {boucherie.email_comptable}</span>
+                  <button
+                    onClick={() => setIsEditingEmail(true)}
+                    className="btn-edit-email"
+                    title="Modifier l'email"
+                  >
+                    ✏️
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="email-comptable warning">⚠️ Aucun email comptable configuré</span>
+                  <button
+                    onClick={() => setIsEditingEmail(true)}
+                    className="btn-edit-email"
+                    title="Ajouter un email"
+                  >
+                    ✏️
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="email-edit">
+              <input
+                type="email"
+                value={emailComptable}
+                onChange={(e) => setEmailComptable(e.target.value)}
+                placeholder="email@comptable.fr"
+                className="email-input"
+                autoFocus
+              />
+              <button
+                onClick={handleSaveEmail}
+                className="btn-save-email"
+                title="Sauvegarder"
+              >
+                ✅
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditingEmail(false);
+                  setEmailComptable(boucherie?.email_comptable || '');
+                }}
+                className="btn-cancel-email"
+                title="Annuler"
+              >
+                ❌
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="comptabilite-content">
