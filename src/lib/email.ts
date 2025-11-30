@@ -26,7 +26,7 @@ export async function sendFacturesCsvEmail(
       <h2>Factures ${moisNoms[mois - 1]} ${annee}</h2>
       <p>Bonjour,</p>
       <p>Veuillez trouver ci-joint le fichier Excel des factures pour <strong>${moisNoms[mois - 1]} ${annee}</strong> de la boucherie <strong>${boucherieNom}</strong>.</p>
-      <p>Cordialement,<br/>Boucherie Compta</p>
+      <p>Cordialement,<br/>${boucherieNom}</p>
     `;
 
     // Appel de la Edge Function Supabase

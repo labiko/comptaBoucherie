@@ -25,7 +25,7 @@ function escapeCsvValue(value: string | number | boolean | null | undefined): st
 /**
  * Formate un nombre en euros avec 2 décimales
  */
-function formatEuros(montant: number): string {
+export function formatEuros(montant: number): string {
   return montant.toFixed(2) + ' €';
 }
 

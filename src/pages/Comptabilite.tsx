@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { Boucherie, Facture, EnvoiComptabilite } from '../types';
 import { generateFacturesExcel, downloadExcel, generateExcelFilename } from '../lib/csv';
 import { sendFacturesCsvEmail, saveEnvoiComptabilite, getEnvoisHistory } from '../lib/email';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ConfirmModal } from '../components/ConfirmModal';
 import './Comptabilite.css';
@@ -139,6 +139,14 @@ export function Comptabilite() {
     setLoading(true);
 
     try {
+      // Vérifier que l'email comptable est configuré
+      if (!boucherie.email_comptable) {
+        setErrorMessage('Veuillez configurer l\'email comptable dans les paramètres');
+        setShowErrorModal(true);
+        setLoading(false);
+        return;
+      }
+
       // Générer l'Excel
       const excelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
       const filename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
@@ -406,7 +414,7 @@ export function Comptabilite() {
                 <div key={envoi.id} className={`historique-item ${envoi.statut}`}>
                   <div className="historique-header">
                     <span className="historique-date">
-                      {format(new Date(envoi.date_envoi), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                      {format(parseISO(envoi.date_envoi), 'dd/MM/yyyy HH:mm', { locale: fr })}
                     </span>
                     <span className={`historique-statut ${envoi.statut}`}>
                       {envoi.statut === 'envoye' ? '✅ Envoyé' : '❌ Erreur'}
