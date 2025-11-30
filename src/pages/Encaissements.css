@@ -510,8 +510,7 @@
 .card-total-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  padding: 8px 16px;
   background: linear-gradient(135deg, #2D7D4C 0%, #3D9D5C 100%);
   color: white;
   border-radius: 20px;
@@ -519,11 +518,6 @@
   font-weight: 700;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(45, 125, 76, 0.25);
-}
-
-.card-total-badge svg {
-  width: 16px;
-  height: 16px;
 }
 
 .encaissement-card .card-body {
