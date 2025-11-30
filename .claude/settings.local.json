@@ -23,7 +23,8 @@
       "Bash(npx supabase db execute:*)",
       "Bash(node scripts/check-images.js:*)",
       "Bash(findstr:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(node scripts/add-mobile-column.js:*)"
     ],
     "deny": [],
     "ask": []

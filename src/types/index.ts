@@ -10,6 +10,7 @@ export interface Boucherie {
   telephone: string | null;
   email: string | null;
   actif: boolean;
+  mobile_autorise: boolean; // Indique si la boucherie a payé pour l'accès mobile
   created_at: string;
   updated_at: string;
 }

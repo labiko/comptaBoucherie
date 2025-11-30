@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { MobileAccessGuard } from './components/MobileAccessGuard';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -89,9 +90,11 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
-          <AppRoutes />
-        </NotificationProvider>
+        <MobileAccessGuard>
+          <NotificationProvider>
+            <AppRoutes />
+          </NotificationProvider>
+        </MobileAccessGuard>
       </AuthProvider>
     </BrowserRouter>
   );
