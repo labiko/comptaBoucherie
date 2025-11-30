@@ -1,0 +1,333 @@
+.comptabilite-page {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.email-comptable {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.email-comptable.warning {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.comptabilite-content {
+  display: grid;
+  gap: 2rem;
+}
+
+/* Section Envoi */
+.section-envoi {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-envoi h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.periode-selector {
+  display: flex;
+  gap: 1rem;
+}
+
+.select-mois,
+.select-annee {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.select-mois {
+  flex: 2;
+}
+
+.select-annee {
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-preview,
+.btn-download,
+.btn-send {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-preview {
+  background: #3498db;
+  color: white;
+}
+
+.btn-preview:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.btn-download {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-download:hover {
+  background: #7f8c8d;
+}
+
+.btn-excel {
+  background: #217346;
+}
+
+.btn-excel:hover {
+  background: #1a5c37;
+}
+
+.btn-csv {
+  background: #95a5a6;
+}
+
+.btn-csv:hover {
+  background: #7f8c8d;
+}
+
+.btn-send {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-send:hover:not(:disabled) {
+  background: #229954;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Prévisualisation */
+.preview-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.preview-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.preview-info {
+  margin: 0 0 1rem 0;
+  padding: 0.75rem;
+  background: #ecf0f1;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.preview-table-container {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.preview-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.preview-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.preview-more {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Section Historique */
+.section-historique {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-historique h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+.no-history {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.historique-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.historique-item {
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ecf0f1;
+  transition: box-shadow 0.2s;
+}
+
+.historique-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.historique-item.erreur {
+  border-color: #e74c3c;
+  background: #fef5f5;
+}
+
+.historique-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.historique-date {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.historique-statut {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.historique-statut.envoye {
+  background: #d4edda;
+  color: #155724;
+}
+
+.historique-statut.erreur {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.historique-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.historique-erreur {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #856404;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .comptabilite-page {
+    padding: 0.5rem;
+  }
+
+  .periode-selector {
+    flex-direction: column;
+  }
+
+  .select-mois,
+  .select-annee {
+    width: 100%;
+  }
+
+  .actions,
+  .preview-actions {
+    flex-direction: column;
+  }
+
+  .btn-preview,
+  .btn-download,
+  .btn-send {
+    width: 100%;
+  }
+
+  .preview-table {
+    font-size: 0.8rem;
+  }
+
+  .historique-details {
+    grid-template-columns: 1fr;
+  }
+}

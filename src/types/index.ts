@@ -11,6 +11,8 @@ export interface Boucherie {
   email: string | null;
   actif: boolean;
   mobile_autorise: boolean; // Indique si la boucherie a payé pour l'accès mobile
+  email_comptable: string | null; // Email du comptable pour l'envoi mensuel automatique
+  envoi_auto_factures: boolean; // Active l'envoi automatique mensuel
   created_at: string;
   updated_at: string;
 }
@@ -158,4 +160,19 @@ export interface PaymentDistribution {
   name: string;
   value: number;
   color: string;
+}
+
+export interface EnvoiComptabilite {
+  id: string;
+  boucherie_id: string;
+  type_export: 'factures' | 'encaissements';
+  mois: number; // 1-12
+  annee: number;
+  date_envoi: string;
+  email_destinataire: string;
+  nombre_lignes: number;
+  statut: 'envoye' | 'erreur';
+  erreur_message: string | null;
+  user_id: string;
+  created_at: string;
 }

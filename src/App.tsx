@@ -9,6 +9,7 @@ import { Encaissements } from './pages/Encaissements';
 import { Factures } from './pages/Factures';
 import { Tracabilite } from './pages/Tracabilite';
 import { Historique } from './pages/Historique';
+import { Comptabilite } from './pages/Comptabilite';
 import './App.css';
 
 import type { ReactElement } from 'react';
@@ -78,6 +79,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <Historique />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/comptabilite"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Comptabilite />
             </Layout>
           </ProtectedRoute>
         }
