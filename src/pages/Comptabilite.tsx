@@ -6,6 +6,7 @@ import { generateFacturesExcel, downloadExcel, generateExcelFilename } from '../
 import { sendFacturesCsvEmail, saveEnvoiComptabilite, getEnvoisHistory } from '../lib/email';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { ConfirmModal } from '../components/ConfirmModal';
 import './Comptabilite.css';
 
 export function Comptabilite() {
@@ -15,6 +16,7 @@ export function Comptabilite() {
   const [envoisHistory, setEnvoisHistory] = useState<EnvoiComptabilite[]>([]);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailComptable, setEmailComptable] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Sélection du mois/année
   const currentDate = new Date();
@@ -113,10 +115,8 @@ export function Comptabilite() {
     }
   }
 
-  async function handleGenerateAndSend() {
-    if (!user?.boucherie_id || !boucherie) return;
-
-    if (!boucherie.email_comptable) {
+  function handleOpenConfirmModal() {
+    if (!boucherie?.email_comptable) {
       alert('Aucun email comptable configuré pour cette boucherie.\nVeuillez configurer l\'email dans les paramètres de la boucherie.');
       return;
     }
@@ -126,9 +126,12 @@ export function Comptabilite() {
       return;
     }
 
-    if (!confirm(`Envoyer ${factures.length} facture(s) à ${boucherie.email_comptable} ?`)) {
-      return;
-    }
+    setShowConfirmModal(true);
+  }
+
+  async function handleGenerateAndSend() {
+    setShowConfirmModal(false);
+    if (!user?.boucherie_id || !boucherie) return;
 
     setLoading(true);
 
@@ -339,7 +342,7 @@ export function Comptabilite() {
                       📊 Télécharger Excel
                     </button>
                     <button
-                      onClick={handleGenerateAndSend}
+                      onClick={handleOpenConfirmModal}
                       disabled={loading || !boucherie?.email_comptable}
                       className="btn-send"
                     >
@@ -351,6 +354,17 @@ export function Comptabilite() {
             </div>
           )}
         </section>
+
+        <ConfirmModal
+          isOpen={showConfirmModal}
+          title="localhost:5174 indique"
+          message={`Envoyer ${factures.length} facture(s) à ${boucherie?.email_comptable || ''} ?`}
+          confirmText="OK"
+          cancelText="Annuler"
+          confirmVariant="primary"
+          onConfirm={handleGenerateAndSend}
+          onCancel={() => setShowConfirmModal(false)}
+        />
 
         {/* Section Historique */}
         <section className="section-historique">
