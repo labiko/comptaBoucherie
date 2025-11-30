@@ -546,11 +546,11 @@ export function Encaissements() {
                       <td className="date-cell">
                         {format(parseISO(enc.date), 'dd/MM')}
                       </td>
-                      <td>{formatMontant(enc.espece)}</td>
-                      <td>{formatMontant(enc.cb)}</td>
-                      <td>{formatMontant(enc.ch_vr)}</td>
-                      <td>{formatMontant(enc.tr)}</td>
-                      <td className="total-cell">{formatMontant(enc.total)}</td>
+                      <td>{formatMontantAvecDevise(enc.espece)}</td>
+                      <td>{formatMontantAvecDevise(enc.cb)}</td>
+                      <td>{formatMontantAvecDevise(enc.ch_vr)}</td>
+                      <td>{formatMontantAvecDevise(enc.tr)}</td>
+                      <td className="total-cell">{formatMontantAvecDevise(enc.total)}</td>
                       <td className="action-cell">
                         <svg
                           className="edit-icon"

@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import type { WeekData } from '../types';
-import { formatMontant } from '../lib/format';
+import { formatMontantAvecDevise } from '../lib/format';
 
 interface WeekChartProps {
   data: WeekData[];
@@ -41,7 +41,7 @@ export function WeekChart({ data }: WeekChartProps) {
               borderRadius: '6px',
               padding: '8px 12px',
             }}
-            formatter={(value: number) => [formatMontant(value), 'Recette']}
+            formatter={(value: number) => [formatMontantAvecDevise(value), 'Recette']}
             labelFormatter={(label, payload) => {
               if (payload && payload.length > 0) {
                 return `${label} (${payload[0].payload.date})`;
@@ -54,7 +54,7 @@ export function WeekChart({ data }: WeekChartProps) {
             stroke="#8B1538"
             strokeDasharray="5 5"
             label={{
-              value: `Moy: ${formatMontant(moyenne)}`,
+              value: `Moy: ${formatMontantAvecDevise(moyenne)}`,
               position: 'right',
               fill: '#8B1538',
               fontSize: 12,

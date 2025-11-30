@@ -166,11 +166,11 @@ export function HistoriqueEncaissements() {
                   <td className="date-cell">
                     {format(parseISO(enc.date), 'dd/MM/yyyy', { locale: fr })}
                   </td>
-                  <td>{formatMontant(enc.espece)}</td>
-                  <td>{formatMontant(enc.cb)}</td>
-                  <td>{formatMontant(enc.ch_vr)}</td>
-                  <td>{formatMontant(enc.tr)}</td>
-                  <td className="total-cell">{formatMontant(enc.total)}</td>
+                  <td>{formatMontantAvecDevise(enc.espece)}</td>
+                  <td>{formatMontantAvecDevise(enc.cb)}</td>
+                  <td>{formatMontantAvecDevise(enc.ch_vr)}</td>
+                  <td>{formatMontantAvecDevise(enc.tr)}</td>
+                  <td className="total-cell">{formatMontantAvecDevise(enc.total)}</td>
                   <td className="created-cell">
                     {format(parseISO(enc.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
                   </td>

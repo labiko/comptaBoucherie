@@ -174,7 +174,7 @@ export function Dashboard() {
                     <div key={facture.id} className="facture-retard-item">
                       <div className="facture-retard-fournisseur">{facture.fournisseur}</div>
                       <div className="facture-retard-details">
-                        {formatMontant(facture.solde_restant)} • {facture.jours_retard}j de retard
+                        {formatMontantAvecDevise(facture.solde_restant)} • {facture.jours_retard}j de retard
                       </div>
                     </div>
                   ))}

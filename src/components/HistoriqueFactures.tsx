@@ -217,9 +217,9 @@ export function HistoriqueFactures() {
                   <td className="echeance-cell">
                     {format(parseISO(facture.echeance), 'dd/MM/yyyy', { locale: fr })}
                   </td>
-                  <td className="montant-cell">{formatMontant(facture.montant)}</td>
+                  <td className="montant-cell">{formatMontantAvecDevise(facture.montant)}</td>
                   <td className={`solde-cell ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
-                    {formatMontant(facture.solde_restant)}
+                    {formatMontantAvecDevise(facture.solde_restant)}
                   </td>
                   <td className={`regle-cell ${facture.regle ? 'paid' : 'unpaid'}`}>
                     {facture.regle ? 'Oui' : 'Non'}
