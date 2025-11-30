@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import type { Boucherie, Facture, EnvoiComptabilite } from '../types';
-import { generateFacturesCsv, downloadCsv, generateCsvFilename, generateFacturesExcel, downloadExcel, generateExcelFilename } from '../lib/csv';
+import { generateFacturesExcel, downloadExcel, generateExcelFilename } from '../lib/csv';
 import { sendFacturesCsvEmail, saveEnvoiComptabilite, getEnvoisHistory } from '../lib/email';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -158,15 +158,6 @@ export function Comptabilite() {
     }
   }
 
-  function handleDownloadCsv() {
-    if (!boucherie || factures.length === 0) return;
-
-    const csvContent = generateFacturesCsv(factures);
-    const filename = generateCsvFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
-
-    downloadCsv(csvContent, filename);
-  }
-
   function handleDownloadExcel() {
     if (!boucherie || factures.length === 0) return;
 
@@ -272,12 +263,6 @@ export function Comptabilite() {
                       className="btn-download btn-excel"
                     >
                       📊 Télécharger Excel
-                    </button>
-                    <button
-                      onClick={handleDownloadCsv}
-                      className="btn-download btn-csv"
-                    >
-                      💾 Télécharger CSV
                     </button>
                     <button
                       onClick={handleGenerateAndSend}
