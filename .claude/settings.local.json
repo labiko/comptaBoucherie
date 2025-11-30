@@ -24,7 +24,8 @@
       "Bash(node scripts/check-images.js:*)",
       "Bash(findstr:*)",
       "Bash(git stash:*)",
-      "Bash(node scripts/add-mobile-column.js:*)"
+      "Bash(node scripts/add-mobile-column.js:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

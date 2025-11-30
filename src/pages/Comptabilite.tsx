@@ -170,7 +170,7 @@ export function Comptabilite() {
   function handleDownloadExcel() {
     if (!boucherie || factures.length === 0) return;
 
-    const excelBuffer = generateFacturesExcel(factures);
+    const excelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
     const filename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
 
     downloadExcel(excelBuffer, filename);
