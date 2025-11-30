@@ -19,7 +19,11 @@
       "Bash(cat:*)",
       "Bash(claude --dangerously-skip-permissions)",
       "Bash(node scripts/analyze-tracabilite.js:*)",
-      "Bash(node scripts/test-tracabilite-fix.js:*)"
+      "Bash(node scripts/test-tracabilite-fix.js:*)",
+      "Bash(npx supabase db execute:*)",
+      "Bash(node scripts/check-images.js:*)",
+      "Bash(findstr:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

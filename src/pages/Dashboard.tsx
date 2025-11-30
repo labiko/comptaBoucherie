@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { formatMontantAvecDevise, formatMontant } from '../lib/format';
+import { formatMontantAvecDevise } from '../lib/format';
 import { DashboardCard } from '../components/DashboardCard';
 import { WeekChart } from '../components/WeekChart';
 import { PaymentPieChart } from '../components/PaymentPieChart';

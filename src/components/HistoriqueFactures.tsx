@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { formatMontant, formatMontantAvecDevise } from '../lib/format';
+import { formatMontantAvecDevise } from '../lib/format';
 import type { Facture, Fournisseur } from '../types';
 import { format, parseISO, startOfYear, endOfYear, startOfMonth, endOfMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import { formatMontantAvecDevise, formatMontant } from '../lib/format';
+import { formatMontantAvecDevise } from '../lib/format';
 import { uploadFactureImage, validateImageFile } from '../lib/storage';
 import type { Facture } from '../types';
 import { format, startOfMonth, endOfMonth, parseISO, addMonths } from 'date-fns';
