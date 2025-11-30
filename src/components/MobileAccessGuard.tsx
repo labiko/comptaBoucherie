@@ -47,7 +47,7 @@ export function MobileAccessGuard({ children }: { children: React.ReactNode }) {
           <p className="mobile-blocked-info">
             Pour activer l'accès mobile, veuillez contacter votre administrateur.
           </p>
-          <a href="mailto:contact@compta-boucherie.fr" className="mobile-blocked-btn">
+          <a href="mailto:diallo.labico@hotmail.fr?subject=Demande d'activation accès mobile" className="mobile-blocked-btn">
             📧 Nous contacter
           </a>
         </div>
