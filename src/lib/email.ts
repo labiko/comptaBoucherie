@@ -4,7 +4,7 @@ import type { EnvoiComptabilite } from '../types';
 
 /**
  * Envoie un email avec le fichier Excel des factures en pièce jointe
- * Utilise Supabase Edge Function + Resend API
+ * Utilise Supabase Edge Function + SMTP Gmail de la boucherie
  */
 export async function sendFacturesCsvEmail(
   emailDestinataire: string,
@@ -12,7 +12,9 @@ export async function sendFacturesCsvEmail(
   filename: string,
   mois: number,
   annee: number,
-  boucherieNom: string
+  boucherieNom: string,
+  smtpEmail: string,
+  smtpPassword: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const moisNoms = [
@@ -29,14 +31,16 @@ export async function sendFacturesCsvEmail(
       <p>Cordialement,<br/>${boucherieNom}</p>
     `;
 
-    // Appel de la Edge Function Supabase
+    // Appel de la Edge Function Supabase avec les credentials SMTP de la boucherie
     const { data, error } = await supabase.functions.invoke('send-email', {
       body: {
         to: emailDestinataire,
         subject,
         html,
         attachmentBase64: excelBase64,
-        attachmentFilename: filename
+        attachmentFilename: filename,
+        smtpEmail,
+        smtpPassword
       }
     });
 

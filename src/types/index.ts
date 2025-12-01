@@ -13,6 +13,8 @@ export interface Boucherie {
   mobile_autorise: boolean; // Indique si la boucherie a payé pour l'accès mobile
   email_comptable: string | null; // Email du comptable pour l'envoi mensuel automatique
   envoi_auto_factures: boolean; // Active l'envoi automatique mensuel
+  smtp_email: string | null; // Email Gmail de la boucherie pour l'envoi SMTP
+  smtp_password: string | null; // Mot de passe d'application Gmail
   created_at: string;
   updated_at: string;
 }

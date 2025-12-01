@@ -156,14 +156,24 @@ export function Comptabilite() {
         new Uint8Array(excelBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
 
-      // Envoyer l'email (simulation pour l'instant)
+      // Vérifier que les credentials SMTP sont configurés
+      if (!boucherie.smtp_email || !boucherie.smtp_password) {
+        setErrorMessage('Configuration SMTP manquante. Veuillez configurer votre email Gmail et mot de passe d\'application dans Administration > Configuration Email');
+        setShowErrorModal(true);
+        setLoading(false);
+        return;
+      }
+
+      // Envoyer l'email avec les credentials SMTP de la boucherie
       const emailResult = await sendFacturesCsvEmail(
         boucherie.email_comptable,
         base64Excel,
         filename,
         selectedMois,
         selectedAnnee,
-        boucherie.nom
+        boucherie.nom,
+        boucherie.smtp_email,
+        boucherie.smtp_password
       );
 
       // Enregistrer l'envoi dans la base

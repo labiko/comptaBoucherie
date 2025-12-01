@@ -19,9 +19,9 @@ export function TabBar() {
         <span className="tab-label">Factures</span>
       </NavLink>
 
-      <NavLink to="/historique" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">📊</div>
-        <span className="tab-label">Historique</span>
+      <NavLink to="/administration" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+        <div className="tab-icon">⚙️</div>
+        <span className="tab-label">Administration</span>
       </NavLink>
     </nav>
   );

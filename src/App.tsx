@@ -7,7 +7,7 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Encaissements } from './pages/Encaissements';
 import { Factures } from './pages/Factures';
-import { Historique } from './pages/Historique';
+import { Administration } from './pages/Administration';
 import './App.css';
 
 import type { ReactElement } from 'react';
@@ -61,19 +61,24 @@ function AppRoutes() {
       />
 
       <Route
-        path="/historique"
+        path="/administration"
         element={
           <ProtectedRoute>
             <Layout>
-              <Historique />
+              <Administration />
             </Layout>
           </ProtectedRoute>
         }
       />
 
       <Route
+        path="/historique"
+        element={<Navigate to="/administration" replace />}
+      />
+
+      <Route
         path="/comptabilite"
-        element={<Navigate to="/historique" replace />}
+        element={<Navigate to="/administration" replace />}
       />
     </Routes>
   );

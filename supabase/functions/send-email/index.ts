@@ -2,15 +2,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @deno-types="npm:@types/nodemailer@6.4.14"
 import nodemailer from "npm:nodemailer@6.9.9";
 
-const GMAIL_EMAIL = Deno.env.get('GMAIL_EMAIL');
-const GMAIL_PASSWORD = Deno.env.get('GMAIL_PASSWORD');
-
 interface EmailRequest {
   to: string;
   subject: string;
   html: string;
   attachmentBase64: string;
   attachmentFilename: string;
+  // Credentials SMTP spécifiques à la boucherie (obligatoires)
+  smtpEmail: string;
+  smtpPassword: string;
 }
 
 const corsHeaders = {
@@ -25,26 +25,27 @@ serve(async (req) => {
   }
 
   try {
-    const { to, subject, html, attachmentBase64, attachmentFilename }: EmailRequest = await req.json();
+    const { to, subject, html, attachmentBase64, attachmentFilename, smtpEmail, smtpPassword }: EmailRequest = await req.json();
 
-    if (!GMAIL_EMAIL || !GMAIL_PASSWORD) {
-      throw new Error('GMAIL_EMAIL or GMAIL_PASSWORD is not set');
+    // Vérifier que les credentials SMTP sont fournis
+    if (!smtpEmail || !smtpPassword) {
+      throw new Error('Email et mot de passe SMTP de la boucherie sont obligatoires');
     }
 
-    // Créer le transporteur nodemailer
+    // Créer le transporteur nodemailer avec les credentials de la boucherie
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
       secure: false, // true pour 465, false pour les autres ports
       auth: {
-        user: GMAIL_EMAIL,
-        pass: GMAIL_PASSWORD,
+        user: smtpEmail,
+        pass: smtpPassword,
       },
     });
 
     // Envoyer l'email avec pièce jointe
     const info = await transporter.sendMail({
-      from: GMAIL_EMAIL,
+      from: smtpEmail,
       to: to,
       subject: subject,
       html: html,
