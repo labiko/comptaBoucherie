@@ -96,128 +96,232 @@
   font-weight: 700;
 }
 
-/* Table */
-.table-container {
-  overflow-x: auto;
+/* Cards Container */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+
+/* Facture Card */
+.facture-card {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.historique-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.historique-table th {
-  background: #F5F5F5;
-  padding: 12px 8px;
-  text-align: left;
-  font-weight: 600;
-  color: #666666;
-  font-size: 12px;
-  text-transform: uppercase;
-  border-bottom: 2px solid #EEEEEE;
-}
-
-.historique-table td {
-  padding: 12px 8px;
-  border-bottom: 1px solid #EEEEEE;
-  text-align: left;
-  color: #1A1A1A;
-}
-
-.historique-table tbody tr {
-  transition: background 0.2s;
-}
-
-.historique-table tbody tr:hover {
-  background: #FAFAFA;
-}
-
-.historique-table tbody tr.unpaid-row {
-  background: #FFF5F7;
-}
-
-.historique-table tbody tr.unpaid-row:hover {
-  background: #FFE8ED;
-}
-
-.date-cell {
-  font-weight: 600;
-  color: #1A1A1A;
-}
-
-.fournisseur-cell {
-  font-weight: 600;
-  color: #1A1A1A;
-}
-
-.description-cell {
-  max-width: 200px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.echeance-cell {
+.facture-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.facture-card.unpaid {
+  border-left: 4px solid #E74C3C;
+}
+
+.facture-card.paid {
+  border-left: 4px solid #2D7D4C;
+}
+
+.card-header {
+  padding: 16px;
+  background: linear-gradient(135deg, #8B1538 0%, #A01845 100%);
+  color: white;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-date-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-date-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.card-date-main svg {
+  width: 18px;
+  height: 18px;
+}
+
+.card-status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
   font-size: 13px;
-  color: #666666;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
 }
 
-.montant-cell {
+.card-status-badge.regle {
+  background: rgba(45, 125, 76, 0.9);
+}
+
+.card-status-badge.non-regle {
+  background: rgba(231, 76, 60, 0.9);
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.fournisseur-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 12px;
+}
+
+.fournisseur-name svg {
+  width: 20px;
+  height: 20px;
+  color: #8B1538;
+}
+
+.description-text {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.card-amounts-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.amount-box {
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+
+.amount-box.primary {
+  background: #F0F4FF;
+  border-left-color: #3B82F6;
+}
+
+.amount-box.success {
+  background: #F0FDF4;
+  border-left-color: #2D7D4C;
+}
+
+.amount-box.warning {
+  background: #FEF2F2;
+  border-left-color: #E74C3C;
+}
+
+.amount-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.amount-value {
+  font-size: 18px;
   font-weight: 700;
   color: #1A1A1A;
 }
 
-.solde-cell {
-  font-weight: 700;
+.card-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.solde-cell.paid {
-  color: #2D7D4C;
+.detail-item {
+  background: #F8F9FA;
+  padding: 10px;
+  border-radius: 6px;
 }
 
-.solde-cell.unpaid {
-  color: #8B1538;
-}
-
-.regle-cell {
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
   font-weight: 600;
-  text-align: center;
+  color: #666666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
 }
 
-.regle-cell.paid {
-  color: #2D7D4C;
-}
-
-.regle-cell.unpaid {
+.detail-label svg {
+  width: 14px;
+  height: 14px;
   color: #8B1538;
 }
 
-.created-cell {
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.piece-jointe-link {
+  margin-top: 12px;
+}
+
+.piece-jointe-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.piece-jointe-link a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.piece-jointe-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+.card-footer {
+  padding: 12px 16px;
+  background: #F8F9FA;
+  border-top: 1px solid #EEEEEE;
+}
+
+.created-at {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   color: #999999;
 }
 
-/* Pièce jointe dans tableau */
-.pj-cell {
-  text-align: center;
-  width: 50px;
-  padding: 12px 8px !important;
-}
-
-.pj-link {
-  font-size: 20px;
-  text-decoration: none;
-  display: inline-block;
-  transition: transform 0.2s;
-  cursor: pointer;
-}
-
-.pj-link:hover {
-  transform: scale(1.3);
+.created-at svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* Empty State */

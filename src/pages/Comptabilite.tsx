@@ -409,28 +409,85 @@ export function Comptabilite() {
           )}
 
           {envoisHistory.length > 0 && (
-            <div className="historique-list">
+            <div className="envois-cards-container">
               {envoisHistory.map(envoi => (
-                <div key={envoi.id} className={`historique-item ${envoi.statut}`}>
-                  <div className="historique-header">
-                    <span className="historique-date">
-                      {format(parseISO(envoi.date_envoi), 'dd/MM/yyyy HH:mm', { locale: fr })}
-                    </span>
-                    <span className={`historique-statut ${envoi.statut}`}>
-                      {envoi.statut === 'envoye' ? '✅ Envoyé' : '❌ Erreur'}
-                    </span>
-                  </div>
-                  <div className="historique-details">
-                    <div>📅 {moisNoms[envoi.mois - 1]} {envoi.annee}</div>
-                    <div>📧 {envoi.email_destinataire}</div>
-                    <div>📄 {envoi.nombre_lignes} ligne(s)</div>
-                    <div>📦 {envoi.type_export}</div>
-                  </div>
-                  {envoi.erreur_message && (
-                    <div className="historique-erreur">
-                      ⚠️ {envoi.erreur_message}
+                <div key={envoi.id} className={`envoi-card ${envoi.statut}`}>
+                  <div className="envoi-card-header">
+                    <div className="envoi-header-row">
+                      <div className="envoi-date">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <path d="M12 6v6l4 2"/>
+                        </svg>
+                        {format(parseISO(envoi.date_envoi), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                      </div>
+                      <div className={`envoi-status-badge ${envoi.statut}`}>
+                        {envoi.statut === 'envoye' ? 'Envoyé' : 'Erreur'}
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="envoi-card-body">
+                    <div className="envoi-details-grid">
+                      <div className="envoi-detail-item">
+                        <div className="envoi-detail-label">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                          Période
+                        </div>
+                        <div className="envoi-detail-value">{moisNoms[envoi.mois - 1]} {envoi.annee}</div>
+                      </div>
+
+                      <div className="envoi-detail-item">
+                        <div className="envoi-detail-label">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <path d="M22 6l-10 7L2 6"/>
+                          </svg>
+                          Email
+                        </div>
+                        <div className="envoi-detail-value">{envoi.email_destinataire}</div>
+                      </div>
+
+                      <div className="envoi-detail-item">
+                        <div className="envoi-detail-label">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                          </svg>
+                          Lignes
+                        </div>
+                        <div className="envoi-detail-value">{envoi.nombre_lignes}</div>
+                      </div>
+
+                      <div className="envoi-detail-item">
+                        <div className="envoi-detail-label">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                          </svg>
+                          Type
+                        </div>
+                        <div className="envoi-detail-value">{envoi.type_export}</div>
+                      </div>
+                    </div>
+
+                    {envoi.erreur_message && (
+                      <div className="envoi-error-message">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="12" y1="8" x2="12" y2="12"/>
+                          <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        {envoi.erreur_message}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

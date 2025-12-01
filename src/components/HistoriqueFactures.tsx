@@ -190,61 +190,101 @@ export function HistoriqueFactures() {
           <p>Aucune facture pour {periodLabel}</p>
         </div>
       ) : (
-        <div className="table-container">
-          <table className="historique-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Fournisseur</th>
-                <th>Description</th>
-                <th>Échéance</th>
-                <th>Montant</th>
-                <th>Solde restant</th>
-                <th>Réglé</th>
-                <th>Mode règlement</th>
-                <th>PJ</th>
-                <th>Créé le</th>
-              </tr>
-            </thead>
-            <tbody>
-              {factures.map((facture) => (
-                <tr key={facture.id} className={facture.solde_restant > 0 ? 'unpaid-row' : ''}>
-                  <td className="date-cell">
-                    {format(parseISO(facture.date_facture), 'dd/MM/yyyy', { locale: fr })}
-                  </td>
-                  <td className="fournisseur-cell">{facture.fournisseur}</td>
-                  <td className="description-cell">{facture.description}</td>
-                  <td className="echeance-cell">
-                    {format(parseISO(facture.echeance), 'dd/MM/yyyy', { locale: fr })}
-                  </td>
-                  <td className="montant-cell">{formatMontantAvecDevise(facture.montant)}</td>
-                  <td className={`solde-cell ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
-                    {formatMontantAvecDevise(facture.solde_restant)}
-                  </td>
-                  <td className={`regle-cell ${facture.regle ? 'paid' : 'unpaid'}`}>
-                    {facture.regle ? 'Oui' : 'Non'}
-                  </td>
-                  <td>{facture.mode_reglement}</td>
-                  <td className="pj-cell">
-                    {facture.piece_jointe && (
-                      <a
-                        href={facture.piece_jointe}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pj-link"
-                        title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
-                      >
-                        📎
-                      </a>
-                    )}
-                  </td>
-                  <td className="created-cell">
-                    {format(parseISO(facture.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="cards-container">
+          {factures.map((facture) => (
+            <div key={facture.id} className={`facture-card ${facture.solde_restant > 0 ? 'unpaid' : 'paid'}`}>
+              <div className="card-header">
+                <div className="card-header-row">
+                  <div className="card-date-wrapper">
+                    <div className="card-date-main">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      {format(parseISO(facture.date_facture), 'dd/MM/yyyy', { locale: fr })}
+                    </div>
+                  </div>
+                  <div className={`card-status-badge ${facture.regle ? 'regle' : 'non-regle'}`}>
+                    {facture.regle ? 'Réglé' : 'Non réglé'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-body">
+                <div className="fournisseur-name">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  {facture.fournisseur}
+                </div>
+
+                <div className="description-text">{facture.description}</div>
+
+                <div className="card-amounts-row">
+                  <div className="amount-box primary">
+                    <div className="amount-label">Montant</div>
+                    <div className="amount-value">{formatMontantAvecDevise(facture.montant)}</div>
+                  </div>
+                  <div className={`amount-box ${facture.solde_restant > 0 ? 'warning' : 'success'}`}>
+                    <div className="amount-label">Solde restant</div>
+                    <div className="amount-value">{formatMontantAvecDevise(facture.solde_restant)}</div>
+                  </div>
+                </div>
+
+                <div className="card-details-grid">
+                  <div className="detail-item">
+                    <div className="detail-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                      </svg>
+                      Échéance
+                    </div>
+                    <div className="detail-value">{format(parseISO(facture.echeance), 'dd/MM/yyyy', { locale: fr })}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                      </svg>
+                      Mode règlement
+                    </div>
+                    <div className="detail-value">{facture.mode_reglement}</div>
+                  </div>
+                </div>
+
+                {facture.piece_jointe && (
+                  <div className="piece-jointe-link">
+                    <a
+                      href={facture.piece_jointe}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={facture.piece_jointe_updated_at ? `Ajoutée le ${format(parseISO(facture.piece_jointe_updated_at), 'dd/MM/yyyy HH:mm', { locale: fr })}` : 'Voir la pièce jointe'}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                      </svg>
+                      Voir la pièce jointe
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              <div className="card-footer">
+                <div className="created-at">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
+                  Créé le {format(parseISO(facture.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

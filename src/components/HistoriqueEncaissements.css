@@ -73,59 +73,124 @@
   font-weight: 700;
 }
 
-/* Table */
-.table-container {
-  overflow-x: auto;
+/* Cards Container */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* Encaissement Card */
+.encaissement-card {
   background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.encaissement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  padding: 16px;
+  background: linear-gradient(135deg, #8B1538 0%, #A01845 100%);
+  color: white;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-date-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-date-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-date-main svg {
+  width: 20px;
+  height: 20px;
+}
+
+.card-total-badge {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.card-amounts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.amount-box {
+  background: #F8F9FA;
+  padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #8B1538;
 }
 
-.historique-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.historique-table th {
-  background: #F5F5F5;
-  padding: 12px 8px;
-  text-align: left;
+.amount-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
   font-weight: 600;
   color: #666666;
-  font-size: 12px;
+  margin-bottom: 6px;
   text-transform: uppercase;
-  border-bottom: 2px solid #EEEEEE;
 }
 
-.historique-table td {
-  padding: 12px 8px;
-  border-bottom: 1px solid #EEEEEE;
-  text-align: left;
-  color: #1A1A1A;
+.amount-label svg {
+  width: 16px;
+  height: 16px;
+  color: #8B1538;
 }
 
-.historique-table tbody tr {
-  transition: background 0.2s;
-}
-
-.historique-table tbody tr:hover {
-  background: #FAFAFA;
-}
-
-.date-cell {
-  font-weight: 600;
-  color: #1A1A1A;
-}
-
-.total-cell {
+.amount-value {
+  font-size: 18px;
   font-weight: 700;
-  color: #2D7D4C;
+  color: #1A1A1A;
 }
 
-.created-cell {
+.card-footer {
+  padding: 12px 16px;
+  background: #F8F9FA;
+  border-top: 1px solid #EEEEEE;
+}
+
+.created-at {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   color: #999999;
+}
+
+.created-at svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* Empty State */

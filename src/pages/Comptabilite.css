@@ -294,74 +294,135 @@ button:disabled {
   font-style: italic;
 }
 
-.historique-list {
+/* Envois Cards Container */
+.envois-cards-container {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
 }
 
-.historique-item {
-  padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ecf0f1;
-  transition: box-shadow 0.2s;
+/* Envoi Card */
+.envoi-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.historique-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.envoi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-.historique-item.erreur {
-  border-color: #e74c3c;
-  background: #fef5f5;
+.envoi-card.envoye {
+  border-left: 4px solid #2D7D4C;
 }
 
-.historique-header {
+.envoi-card.erreur {
+  border-left: 4px solid #E74C3C;
+}
+
+.envoi-card-header {
+  padding: 16px;
+  background: linear-gradient(135deg, #8B1538 0%, #A01845 100%);
+  color: white;
+}
+
+.envoi-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #ecf0f1;
 }
 
-.historique-date {
-  font-weight: 500;
-  color: #2c3e50;
+.envoi-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.historique-statut {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
+.envoi-date svg {
+  width: 18px;
+  height: 18px;
 }
 
-.historique-statut.envoye {
-  background: #d4edda;
-  color: #155724;
+.envoi-status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
 }
 
-.historique-statut.erreur {
-  background: #f8d7da;
-  color: #721c24;
+.envoi-status-badge.envoye {
+  background: rgba(45, 125, 76, 0.9);
 }
 
-.historique-details {
+.envoi-status-badge.erreur {
+  background: rgba(231, 76, 60, 0.9);
+}
+
+.envoi-card-body {
+  padding: 16px;
+}
+
+.envoi-details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: #555;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
-.historique-erreur {
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  color: #856404;
+.envoi-detail-item {
+  background: #F8F9FA;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.envoi-detail-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666666;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.envoi-detail-label svg {
+  width: 14px;
+  height: 14px;
+  color: #8B1538;
+}
+
+.envoi-detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  word-break: break-word;
+}
+
+.envoi-error-message {
+  margin-top: 16px;
+  padding: 12px;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #991B1B;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.envoi-error-message svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 /* Responsive */
