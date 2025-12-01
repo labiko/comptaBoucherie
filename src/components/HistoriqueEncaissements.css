@@ -227,16 +227,29 @@
     text-align: center;
   }
 
-  .historique-table {
-    font-size: 12px;
+  /* Cards responsive */
+  .cards-container {
+    grid-template-columns: 1fr;
   }
 
-  .historique-table th,
-  .historique-table td {
-    padding: 8px 4px;
+  .encaissement-card {
+    max-width: 100%;
   }
 
-  .created-cell {
-    font-size: 11px;
+  .card-date-main {
+    font-size: 14px;
+  }
+
+  .card-total-badge {
+    font-size: 14px;
+    padding: 4px 10px;
+  }
+
+  .card-amounts {
+    grid-template-columns: 1fr;
+  }
+
+  .amount-value {
+    font-size: 16px;
   }
 }

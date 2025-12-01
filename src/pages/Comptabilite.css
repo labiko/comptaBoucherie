@@ -455,7 +455,37 @@ button:disabled {
     font-size: 0.8rem;
   }
 
-  .historique-details {
+  /* Envois cards responsive */
+  .envois-cards-container {
     grid-template-columns: 1fr;
+  }
+
+  .envoi-card {
+    max-width: 100%;
+  }
+
+  .envoi-date {
+    font-size: 13px;
+  }
+
+  .envoi-status-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .envoi-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .envoi-detail-label {
+    font-size: 10px;
+  }
+
+  .envoi-detail-value {
+    font-size: 13px;
+  }
+
+  .envoi-error-message {
+    font-size: 12px;
   }
 }
