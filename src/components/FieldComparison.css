@@ -38,8 +38,8 @@
 }
 
 .value-old {
-  background: #FFE8ED;
-  color: #8B1538;
+  background: #F5F5F5;
+  color: #757575;
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;
 }
@@ -56,8 +56,8 @@
 }
 
 .value-old.deletion {
-  background: #FFEBEE;
-  color: #C62828;
+  background: #F5F5F5;
+  color: #757575;
 }
 
 .arrow-icon {

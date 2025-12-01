@@ -119,7 +119,6 @@ export function HistoriqueEncaissements() {
       <div className="header-section">
         <div className="filters-row">
           <div className="year-selector">
-            <label>Année :</label>
             <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
               {availableYears.map(year => (
                 <option key={year} value={year}>{year}</option>
@@ -128,7 +127,6 @@ export function HistoriqueEncaissements() {
           </div>
 
           <div className="month-selector">
-            <label>Mois :</label>
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
               {months.map(month => (
                 <option key={month.value} value={month.value}>{month.label}</option>

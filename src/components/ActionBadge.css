@@ -32,6 +32,6 @@
 }
 
 .action-badge.action-delete {
-  background: linear-gradient(135deg, #8B1538 0%, #C62828 100%);
-  box-shadow: 0 2px 4px rgba(139, 21, 56, 0.3);
+  background: linear-gradient(135deg, #757575 0%, #616161 100%);
+  box-shadow: 0 2px 4px rgba(117, 117, 117, 0.3);
 }

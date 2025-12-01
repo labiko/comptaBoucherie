@@ -56,7 +56,7 @@
 
 .filter-group select:focus {
   outline: none;
-  border-color: #8B1538;
+  border-color: #1565C0;
 }
 
 .btn-refresh {
@@ -64,7 +64,7 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: #8B1538;
+  background: #1565C0;
   color: white;
   border: none;
   border-radius: 6px;
@@ -76,9 +76,9 @@
 }
 
 .btn-refresh:hover {
-  background: #B01D47;
+  background: #1976D2;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(139, 21, 56, 0.3);
+  box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
 }
 
 /* Timeline */
@@ -111,6 +111,7 @@
   padding: 16px 20px;
   gap: 16px;
   flex-wrap: wrap;
+  background: white;
 }
 
 .header-left {
@@ -137,9 +138,9 @@
 
 .record-date {
   padding: 4px 10px;
-  background: #FFF5F7;
+  background: #F5F5F5;
   border-radius: 6px;
-  color: #8B1538;
+  color: #757575;
   font-size: 12px;
   font-weight: 600;
 }

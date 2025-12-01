@@ -23,11 +23,6 @@ export function TabBar() {
         <div className="tab-icon">📊</div>
         <span className="tab-label">Historique</span>
       </NavLink>
-
-      <NavLink to="/comptabilite" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">📨</div>
-        <span className="tab-label">Export</span>
-      </NavLink>
     </nav>
   );
 }
