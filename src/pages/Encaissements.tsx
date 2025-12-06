@@ -132,6 +132,7 @@ export function Encaissements() {
   const { showSuccess, showError } = useNotification();
   const [encaissements, setEncaissements] = useState<Encaissement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -190,7 +191,7 @@ export function Encaissements() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return;
+    if (!user || isSubmitting) return;
 
     // Validation : tous les champs sont obligatoires
     if (!formData.espece || !formData.cb || !formData.ch_vr || !formData.tr) {
@@ -214,6 +215,8 @@ export function Encaissements() {
       showError('Les montants ne peuvent pas être négatifs');
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       // Si on est en mode édition
@@ -297,6 +300,8 @@ export function Encaissements() {
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       showError('Erreur lors de la sauvegarde');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -461,8 +466,8 @@ export function Encaissements() {
           </div>
         </div>
 
-          <button type="submit" className="btn-primary">
-            {editingEncaissement ? 'Enregistrer les modifications' : 'Enregistrer'}
+          <button type="submit" className="btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Enregistrement...' : (editingEncaissement ? 'Enregistrer les modifications' : 'Enregistrer')}
           </button>
         </form>
       )}

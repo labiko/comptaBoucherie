@@ -177,6 +177,7 @@ export function Factures() {
   const [factures, setFactures] = useState<Facture[]>([]);
   const [fournisseurs, setFournisseurs] = useState<Array<{ id: string; nom: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -285,7 +286,7 @@ export function Factures() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return;
+    if (!user || isSubmitting) return;
 
     // Validation
     if (!formData.fournisseur || !formData.description || !formData.montant || !formData.solde_restant) {
@@ -314,6 +315,8 @@ export function Factures() {
     // Calculer automatiquement date_facture et echeance
     const date_facture = format(new Date(), 'yyyy-MM-dd');
     const echeance = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
+
+    setIsSubmitting(true);
 
     try {
       if (editingId) {
@@ -432,6 +435,8 @@ export function Factures() {
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       showError('Erreur lors de la sauvegarde');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -718,8 +723,8 @@ export function Factures() {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary">
-            {editingFacture ? 'Enregistrer les modifications' : 'Enregistrer'}
+          <button type="submit" className="btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Enregistrement...' : (editingFacture ? 'Enregistrer les modifications' : 'Enregistrer')}
           </button>
         </form>
       )}
