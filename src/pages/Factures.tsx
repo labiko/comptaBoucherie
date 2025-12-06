@@ -737,13 +737,39 @@ export function Factures() {
 
             <div className="form-field full-width">
               <label htmlFor="piece_jointe">Pièce jointe (image)</label>
-              <input
-                type="file"
-                id="piece_jointe"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleImageChange}
-                className="file-input"
-              />
+              <div className="image-input-group">
+                <input
+                  type="file"
+                  id="piece_jointe"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="file-input"
+                  style={{ display: 'none' }}
+                />
+                <input
+                  type="file"
+                  id="piece_jointe_camera"
+                  accept="image/jpeg,image/png,image/webp"
+                  capture="environment"
+                  onChange={handleImageChange}
+                  className="file-input"
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('piece_jointe')?.click()}
+                  className="btn-secondary"
+                >
+                  📁 Choisir un fichier
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('piece_jointe_camera')?.click()}
+                  className="btn-secondary"
+                >
+                  📷 Prendre une photo
+                </button>
+              </div>
               {imagePreview && (
                 <div className="image-preview">
                   <img src={imagePreview} alt="Aperçu" />
