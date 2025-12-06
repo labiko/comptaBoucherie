@@ -28,7 +28,11 @@
       "Bash(node:*)",
       "Bash(supabase --version:*)",
       "Bash(npx supabase:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(git merge:*)",
+      "Bash(dir /b:*)",
+      "Bash(npm run preview:*)"
     ],
     "deny": [],
     "ask": []

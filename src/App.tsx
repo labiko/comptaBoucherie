@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { MobileAccessGuard } from './components/MobileAccessGuard';
 import { Layout } from './components/Layout';
+import { InstallPrompt } from './components/InstallPrompt';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Encaissements } from './pages/Encaissements';
@@ -91,6 +92,7 @@ function App() {
         <MobileAccessGuard>
           <NotificationProvider>
             <AppRoutes />
+            <InstallPrompt />
           </NotificationProvider>
         </MobileAccessGuard>
       </AuthProvider>

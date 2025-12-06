@@ -1,213 +1,125 @@
--- Schéma de base de données Supabase pour Compta Boucherie
--- À exécuter dans l'éditeur SQL de Supabase
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- Extension pour le chiffrement des mots de passe
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
--- Table des utilisateurs
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  login TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL, -- Mot de passe chiffré avec pgcrypto
-  nom TEXT NOT NULL,
-  prenom TEXT,
-  email TEXT,
-  actif BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.boucheries (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  nom text NOT NULL,
+  adresse text,
+  code_postal text,
+  ville text,
+  siret text,
+  telephone text,
+  email text,
+  actif boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  mobile_autorise boolean NOT NULL DEFAULT false,
+  email_comptable text,
+  envoi_auto_factures boolean NOT NULL DEFAULT false,
+  smtp_email text,
+  smtp_password text,
+  CONSTRAINT boucheries_pkey PRIMARY KEY (id)
 );
-
--- Index pour améliorer les performances
-CREATE INDEX idx_users_login ON users(login);
-CREATE INDEX idx_users_actif ON users(actif);
-
--- Fonction pour chiffrer le mot de passe
-CREATE OR REPLACE FUNCTION hash_password(password TEXT)
-RETURNS TEXT AS $$
-BEGIN
-  RETURN crypt(password, gen_salt('bf', 10)); -- Utilise bcrypt avec 10 rounds
-END;
-$$ LANGUAGE plpgsql;
-
--- Fonction pour vérifier le mot de passe
-CREATE OR REPLACE FUNCTION verify_password(login_input TEXT, password_input TEXT)
-RETURNS BOOLEAN AS $$
-DECLARE
-  stored_hash TEXT;
-BEGIN
-  SELECT password_hash INTO stored_hash
-  FROM users
-  WHERE login = login_input AND actif = true;
-
-  IF stored_hash IS NULL THEN
-    RETURN false;
-  END IF;
-
-  RETURN stored_hash = crypt(password_input, stored_hash);
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Table des encaissements
-CREATE TABLE encaissements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  date DATE NOT NULL,
-  espece DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  cb DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  ch_vr DECIMAL(10, 2) NOT NULL DEFAULT 0, -- Chèque/Virement
-  tr DECIMAL(10, 2) NOT NULL DEFAULT 0, -- Tickets Restaurant
-  total DECIMAL(10, 2) GENERATED ALWAYS AS (espece + cb + ch_vr + tr) STORED,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(date, user_id) -- Un encaissement par jour et par utilisateur
+CREATE TABLE public.encaissements (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  date date NOT NULL,
+  espece numeric NOT NULL DEFAULT 0,
+  cb numeric NOT NULL DEFAULT 0,
+  ch_vr numeric NOT NULL DEFAULT 0,
+  tr numeric NOT NULL DEFAULT 0,
+  total numeric DEFAULT (((espece + cb) + ch_vr) + tr),
+  user_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  updated_by uuid,
+  boucherie_id uuid NOT NULL,
+  CONSTRAINT encaissements_pkey PRIMARY KEY (id),
+  CONSTRAINT encaissements_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT encaissements_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id),
+  CONSTRAINT encaissements_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
 );
-
--- Index pour améliorer les performances
-CREATE INDEX idx_encaissements_date ON encaissements(date DESC);
-CREATE INDEX idx_encaissements_user_id ON encaissements(user_id);
-CREATE INDEX idx_encaissements_user_date ON encaissements(user_id, date DESC);
-
--- Table des factures
-CREATE TABLE factures (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  date_facture DATE NOT NULL,
-  fournisseur TEXT NOT NULL,
-  echeance DATE NOT NULL,
-  description TEXT,
-  montant DECIMAL(10, 2) NOT NULL,
-  mode_reglement TEXT NOT NULL,
-  solde_restant DECIMAL(10, 2) NOT NULL,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE public.envois_comptabilite (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  boucherie_id uuid NOT NULL,
+  type_export text NOT NULL CHECK (type_export = ANY (ARRAY['factures'::text, 'encaissements'::text])),
+  mois integer NOT NULL CHECK (mois >= 1 AND mois <= 12),
+  annee integer NOT NULL CHECK (annee >= 2020),
+  date_envoi timestamp without time zone NOT NULL DEFAULT now(),
+  email_destinataire text NOT NULL,
+  nombre_lignes integer DEFAULT 0,
+  statut text DEFAULT 'envoye'::text CHECK (statut = ANY (ARRAY['envoye'::text, 'erreur'::text])),
+  erreur_message text,
+  user_id uuid,
+  created_at timestamp without time zone NOT NULL DEFAULT now(),
+  CONSTRAINT envois_comptabilite_pkey PRIMARY KEY (id),
+  CONSTRAINT envois_comptabilite_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id),
+  CONSTRAINT envois_comptabilite_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
-
--- Index pour améliorer les performances
-CREATE INDEX idx_factures_date ON factures(date_facture DESC);
-CREATE INDEX idx_factures_fournisseur ON factures(fournisseur);
-CREATE INDEX idx_factures_user_id ON factures(user_id);
-CREATE INDEX idx_factures_user_date ON factures(user_id, date_facture DESC);
-
--- Trigger pour mettre à jour updated_at automatiquement
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_users_updated_at
-  BEFORE UPDATE ON users
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_encaissements_updated_at
-  BEFORE UPDATE ON encaissements
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_factures_updated_at
-  BEFORE UPDATE ON factures
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
--- Vue pour les encaissements du mois courant
-CREATE OR REPLACE VIEW encaissements_mois_courant AS
-SELECT *
-FROM encaissements
-WHERE EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
-  AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE);
-
--- Vue pour les factures du mois courant
-CREATE OR REPLACE VIEW factures_mois_courant AS
-SELECT *
-FROM factures
-WHERE EXTRACT(YEAR FROM date_facture) = EXTRACT(YEAR FROM CURRENT_DATE)
-  AND EXTRACT(MONTH FROM date_facture) = EXTRACT(MONTH FROM CURRENT_DATE);
-
--- Vue pour les encaissements archivés (mois passés)
-CREATE OR REPLACE VIEW encaissements_archives AS
-SELECT *
-FROM encaissements
-WHERE (EXTRACT(YEAR FROM date) < EXTRACT(YEAR FROM CURRENT_DATE))
-   OR (EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
-       AND EXTRACT(MONTH FROM date) < EXTRACT(MONTH FROM CURRENT_DATE));
-
--- Vue pour les factures archivées (mois passés)
-CREATE OR REPLACE VIEW factures_archives AS
-SELECT *
-FROM factures
-WHERE (EXTRACT(YEAR FROM date_facture) < EXTRACT(YEAR FROM CURRENT_DATE))
-   OR (EXTRACT(YEAR FROM date_facture) = EXTRACT(YEAR FROM CURRENT_DATE)
-       AND EXTRACT(MONTH FROM date_facture) < EXTRACT(MONTH FROM CURRENT_DATE));
-
--- Fonction pour obtenir la liste des mois disponibles dans les archives
-CREATE OR REPLACE FUNCTION get_mois_archives(p_user_id UUID DEFAULT NULL)
-RETURNS TABLE(annee INTEGER, mois INTEGER, nb_encaissements BIGINT, nb_factures BIGINT) AS $$
-BEGIN
-  RETURN QUERY
-  WITH mois_encaissements AS (
-    SELECT
-      EXTRACT(YEAR FROM date)::INTEGER as annee,
-      EXTRACT(MONTH FROM date)::INTEGER as mois,
-      COUNT(*) as nb
-    FROM encaissements
-    WHERE (p_user_id IS NULL OR user_id = p_user_id)
-      AND ((EXTRACT(YEAR FROM date) < EXTRACT(YEAR FROM CURRENT_DATE))
-           OR (EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
-               AND EXTRACT(MONTH FROM date) < EXTRACT(MONTH FROM CURRENT_DATE)))
-    GROUP BY EXTRACT(YEAR FROM date), EXTRACT(MONTH FROM date)
-  ),
-  mois_factures AS (
-    SELECT
-      EXTRACT(YEAR FROM date_facture)::INTEGER as annee,
-      EXTRACT(MONTH FROM date_facture)::INTEGER as mois,
-      COUNT(*) as nb
-    FROM factures
-    WHERE (p_user_id IS NULL OR user_id = p_user_id)
-      AND ((EXTRACT(YEAR FROM date_facture) < EXTRACT(YEAR FROM CURRENT_DATE))
-           OR (EXTRACT(YEAR FROM date_facture) = EXTRACT(YEAR FROM CURRENT_DATE)
-               AND EXTRACT(MONTH FROM date_facture) < EXTRACT(MONTH FROM CURRENT_DATE)))
-    GROUP BY EXTRACT(YEAR FROM date_facture), EXTRACT(MONTH FROM date_facture)
-  )
-  SELECT
-    COALESCE(e.annee, f.annee) as annee,
-    COALESCE(e.mois, f.mois) as mois,
-    COALESCE(e.nb, 0) as nb_encaissements,
-    COALESCE(f.nb, 0) as nb_factures
-  FROM mois_encaissements e
-  FULL OUTER JOIN mois_factures f ON e.annee = f.annee AND e.mois = f.mois
-  ORDER BY annee DESC, mois DESC;
-END;
-$$ LANGUAGE plpgsql;
-
--- Activer Row Level Security (RLS)
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE encaissements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE factures ENABLE ROW LEVEL SECURITY;
-
--- Politiques RLS pour les utilisateurs
--- Pour le moment, on permet l'accès à tous (à ajuster selon les besoins de sécurité)
-CREATE POLICY "Enable read access for all users" ON users FOR SELECT USING (true);
-CREATE POLICY "Enable insert for all users" ON users FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can update their own data" ON users FOR UPDATE USING (true);
-
--- Politiques RLS pour les encaissements
-CREATE POLICY "Enable all for all users on encaissements" ON encaissements FOR ALL USING (true);
-
--- Politiques RLS pour les factures
-CREATE POLICY "Enable all for all users on factures" ON factures FOR ALL USING (true);
-
--- Insérer un utilisateur par défaut (mot de passe: "admin123")
-INSERT INTO users (login, password_hash, nom, prenom, email)
-VALUES (
-  'admin',
-  hash_password('admin123'),
-  'Administrateur',
-  'Principal',
-  'admin@boucherie.fr'
+CREATE TABLE public.factures (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  date_facture date NOT NULL,
+  fournisseur text NOT NULL,
+  echeance date NOT NULL,
+  description text,
+  montant numeric NOT NULL,
+  mode_reglement text NOT NULL,
+  solde_restant numeric NOT NULL,
+  user_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  updated_by uuid,
+  boucherie_id uuid NOT NULL,
+  regle boolean DEFAULT false,
+  fournisseur_id uuid,
+  piece_jointe text,
+  piece_jointe_updated_at timestamp with time zone,
+  CONSTRAINT factures_pkey PRIMARY KEY (id),
+  CONSTRAINT factures_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT factures_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id),
+  CONSTRAINT factures_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id),
+  CONSTRAINT factures_fournisseur_id_fkey FOREIGN KEY (fournisseur_id) REFERENCES public.fournisseurs(id)
 );
-
--- Afficher l'ID de l'utilisateur créé pour référence
-SELECT id, login, nom, prenom FROM users WHERE login = 'admin';
+CREATE TABLE public.fournisseurs (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  boucherie_id uuid NOT NULL,
+  nom character varying NOT NULL,
+  type character varying,
+  telephone character varying,
+  email character varying,
+  adresse text,
+  actif boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT fournisseurs_pkey PRIMARY KEY (id),
+  CONSTRAINT fournisseurs_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
+);
+CREATE TABLE public.tracabilite (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  boucherie_id uuid NOT NULL,
+  table_name text NOT NULL CHECK (table_name = ANY (ARRAY['encaissements'::text, 'factures'::text])),
+  record_id uuid NOT NULL,
+  action text NOT NULL CHECK (action = ANY (ARRAY['CREATE'::text, 'UPDATE'::text, 'DELETE'::text])),
+  user_id uuid NOT NULL,
+  user_nom text NOT NULL,
+  timestamp timestamp with time zone DEFAULT now(),
+  old_values jsonb,
+  new_values jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT tracabilite_pkey PRIMARY KEY (id),
+  CONSTRAINT tracabilite_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id),
+  CONSTRAINT tracabilite_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.users (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  login text NOT NULL UNIQUE,
+  password_hash text NOT NULL,
+  nom text NOT NULL,
+  prenom text,
+  email text,
+  actif boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  boucherie_id uuid NOT NULL,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
+);
