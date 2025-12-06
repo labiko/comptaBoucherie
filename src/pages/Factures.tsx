@@ -364,7 +364,6 @@ export function Factures() {
         console.log('💾 Résultat de la mise à jour:', { error, updatedData });
 
         if (error) throw error;
-        setEditingId(null);
       } else {
         // Mode création - Créer directement la facture (plusieurs factures par jour autorisées)
         const { data: newFacture, error: insertError } = await supabase
@@ -418,6 +417,7 @@ export function Factures() {
       setSelectedImage(null);
       setImagePreview(null);
       setShowForm(false);
+      setEditingId(null);
 
       if (savedEditingId) {
         setHighlightedId(savedEditingId);

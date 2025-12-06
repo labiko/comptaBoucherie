@@ -278,6 +278,10 @@ export function Encaissements() {
       await loadEncaissements();
       showSuccess('Encaissement enregistré !');
 
+      // Fermer le formulaire et réinitialiser l'état d'édition
+      setShowForm(false);
+      setEditingId(null);
+
       // Si on était en mode édition, scroller vers la ligne modifiée et la mettre en surbrillance
       if (savedEditingId) {
         setHighlightedId(savedEditingId);
