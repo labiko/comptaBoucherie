@@ -1,0 +1,114 @@
+/* Switch Toggle Component - Mobile First */
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.switch-container:active {
+  background: #f9fafb;
+}
+
+.switch-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #374151;
+  flex: 1;
+}
+
+.switch-wrapper {
+  position: relative;
+  width: 52px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d1d5db;
+  transition: all 0.3s ease;
+  border-radius: 30px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* État activé */
+.switch-input:checked + .switch-slider {
+  background: linear-gradient(135deg, #8B1538 0%, #a91d47 100%);
+  box-shadow: 0 2px 8px rgba(139, 21, 56, 0.3);
+}
+
+.switch-input:checked + .switch-slider:before {
+  transform: translateX(22px);
+}
+
+/* Animation au focus (accessibilité) */
+.switch-input:focus + .switch-slider {
+  box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+}
+
+/* Animation au hover (desktop) */
+@media (hover: hover) {
+  .switch-container:hover {
+    border-color: #d1d5db;
+  }
+
+  .switch-input:not(:checked) + .switch-slider:hover {
+    background-color: #9ca3af;
+  }
+}
+
+/* Mode sombre (optionnel) */
+@media (prefers-color-scheme: dark) {
+  .switch-container {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .switch-label {
+    color: #f9fafb;
+  }
+
+  .switch-slider {
+    background-color: #4b5563;
+  }
+
+  .switch-input:checked + .switch-slider {
+    background: linear-gradient(135deg, #a91d47 0%, #c92350 100%);
+  }
+}

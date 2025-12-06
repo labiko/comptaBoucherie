@@ -7,6 +7,7 @@ import { uploadFactureImage, validateImageFile } from '../lib/storage';
 import type { Facture } from '../types';
 import { format, startOfMonth, endOfMonth, parseISO, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Switch } from '../components/Switch';
 import './Factures.css';
 
 interface FactureCardProps {
@@ -184,7 +185,9 @@ export function Factures() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [useCustomDate, setUseCustomDate] = useState(false);
   const [formData, setFormData] = useState({
+    date_facture: format(new Date(), 'yyyy-MM-dd'),
     fournisseur: '',
     description: '',
     montant: '',
@@ -312,9 +315,9 @@ export function Factures() {
       return;
     }
 
-    // Calculer automatiquement date_facture et echeance
-    const date_facture = format(new Date(), 'yyyy-MM-dd');
-    const echeance = format(addMonths(new Date(), 1), 'yyyy-MM-dd');
+    // Déterminer la date à utiliser
+    const date_facture = useCustomDate ? formData.date_facture : format(new Date(), 'yyyy-MM-dd');
+    const echeance = format(addMonths(parseISO(date_facture), 1), 'yyyy-MM-dd');
 
     setIsSubmitting(true);
 
@@ -407,6 +410,7 @@ export function Factures() {
 
       // Réinitialiser le formulaire
       setFormData({
+        date_facture: format(new Date(), 'yyyy-MM-dd'),
         fournisseur: '',
         description: '',
         montant: '',
@@ -418,6 +422,7 @@ export function Factures() {
       setImagePreview(null);
       setShowForm(false);
       setEditingId(null);
+      setUseCustomDate(false);
 
       if (savedEditingId) {
         setHighlightedId(savedEditingId);
@@ -447,7 +452,14 @@ export function Factures() {
 
     setEditingId(facture.id);
     setShowForm(true);
+
+    // Activer le toggle si la date de la facture ≠ aujourd'hui
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const isNotToday = facture.date_facture !== todayStr;
+    setUseCustomDate(isNotToday);
+
     setFormData({
+      date_facture: facture.date_facture,
       fournisseur: facture.fournisseur,
       description: facture.description,
       montant: facture.montant.toString(),
@@ -485,7 +497,9 @@ export function Factures() {
   function handleCancelEdit() {
     setEditingId(null);
     setShowForm(false);
+    setUseCustomDate(false);
     setFormData({
+      date_facture: format(new Date(), 'yyyy-MM-dd'),
       fournisseur: '',
       description: '',
       montant: '',
@@ -600,6 +614,25 @@ export function Factures() {
               )}
             </div>
           </div>
+
+          <Switch
+            checked={useCustomDate}
+            onChange={setUseCustomDate}
+            label="Choisir une autre date"
+          />
+
+          {useCustomDate && (
+            <div className="form-field">
+              <label htmlFor="date_facture">Date de facture *</label>
+              <input
+                type="date"
+                id="date_facture"
+                value={formData.date_facture}
+                onChange={(e) => handleInputChange('date_facture', e.target.value)}
+                required
+              />
+            </div>
+          )}
 
           <div className="form-grid">
             <div className="form-field">

@@ -6,6 +6,7 @@ import { formatMontantAvecDevise } from '../lib/format';
 import type { Encaissement } from '../types';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Switch } from '../components/Switch';
 import './Encaissements.css';
 
 interface EncaissementCardProps {
@@ -136,7 +137,9 @@ export function Encaissements() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [useCustomDate, setUseCustomDate] = useState(false);
   const [formData, setFormData] = useState({
+    date: format(new Date(), 'yyyy-MM-dd'),
     espece: '',
     cb: '',
     ch_vr: '',
@@ -176,6 +179,7 @@ export function Encaissements() {
       const todayData = data?.find((e) => e.date === todayStr);
       if (todayData) {
         setFormData({
+          date: todayData.date,
           espece: todayData.espece.toString(),
           cb: todayData.cb.toString(),
           ch_vr: todayData.ch_vr.toString(),
@@ -216,6 +220,9 @@ export function Encaissements() {
       return;
     }
 
+    // Déterminer la date à utiliser
+    const dateToUse = useCustomDate ? formData.date : todayStr;
+
     setIsSubmitting(true);
 
     try {
@@ -236,7 +243,7 @@ export function Encaissements() {
         setEditingId(null);
       } else {
         // Vérifier s'il existe déjà un encaissement pour cette date
-        const existingEncaissement = encaissements.find((e) => e.date === todayStr);
+        const existingEncaissement = encaissements.find((e) => e.date === dateToUse);
 
         if (existingEncaissement) {
           // Mettre à jour l'encaissement existant
@@ -258,7 +265,7 @@ export function Encaissements() {
             .from('encaissements')
             .insert({
               boucherie_id: user.boucherie_id,
-              date: todayStr,
+              date: dateToUse,
               espece,
               cb,
               ch_vr,
@@ -312,7 +319,13 @@ export function Encaissements() {
   function handleEdit(encaissement: Encaissement) {
     setEditingId(encaissement.id);
     setShowForm(true);
+
+    // Activer le toggle si la date de l'encaissement ≠ aujourd'hui
+    const isNotToday = encaissement.date !== todayStr;
+    setUseCustomDate(isNotToday);
+
     setFormData({
+      date: encaissement.date,
       espece: encaissement.espece.toString(),
       cb: encaissement.cb.toString(),
       ch_vr: encaissement.ch_vr.toString(),
@@ -330,7 +343,14 @@ export function Encaissements() {
   function handleCancelEdit() {
     setEditingId(null);
     setShowForm(false);
-    setFormData({ espece: '', cb: '', ch_vr: '', tr: '' });
+    setUseCustomDate(false);
+    setFormData({
+      date: format(new Date(), 'yyyy-MM-dd'),
+      espece: '',
+      cb: '',
+      ch_vr: '',
+      tr: '',
+    });
   }
 
   function handleInputChange(field: keyof typeof formData, value: string) {
@@ -407,6 +427,25 @@ export function Encaissements() {
               )}
             </div>
           </div>
+
+          <Switch
+            checked={useCustomDate}
+            onChange={setUseCustomDate}
+            label="Choisir une autre date"
+          />
+
+          {useCustomDate && (
+            <div className="form-field">
+              <label htmlFor="date">Date *</label>
+              <input
+                type="date"
+                id="date"
+                value={formData.date}
+                onChange={(e) => handleInputChange('date', e.target.value)}
+                required
+              />
+            </div>
+          )}
 
         <div className="form-grid">
           <div className="form-field">
