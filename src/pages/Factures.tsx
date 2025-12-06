@@ -13,14 +13,15 @@ interface FactureCardProps {
   facture: Facture;
   onEdit: (facture: Facture) => void;
   isHighlighted: boolean;
+  isToday: boolean;
 }
 
-function FactureCard({ facture, onEdit, isHighlighted }: FactureCardProps) {
+function FactureCard({ facture, onEdit, isHighlighted, isToday }: FactureCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div
-      className={`facture-card ${facture.solde_restant > 0 ? 'unpaid-card' : ''} ${isHighlighted ? 'highlighted-card' : ''}`}
+      className={`facture-card ${isToday ? 'today-card' : ''} ${facture.solde_restant > 0 ? 'unpaid-card' : ''} ${isHighlighted ? 'highlighted-card' : ''}`}
       onClick={() => setIsExpanded(!isExpanded)}
     >
       <div className="card-header">
@@ -33,6 +34,7 @@ function FactureCard({ facture, onEdit, isHighlighted }: FactureCardProps) {
               </svg>
               {facture.fournisseur}
             </div>
+            {isToday && <span className="today-badge">Aujourd'hui</span>}
             <div className="card-description">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -173,6 +175,7 @@ export function Factures() {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
   const [factures, setFactures] = useState<Facture[]>([]);
+  const [fournisseurs, setFournisseurs] = useState<Array<{ id: string; nom: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
@@ -194,6 +197,7 @@ export function Factures() {
   useEffect(() => {
     if (user) {
       loadFactures();
+      loadFournisseurs();
     }
   }, [user, selectedMonth]);
 
@@ -211,7 +215,8 @@ export function Factures() {
         .eq('boucherie_id', user.boucherie_id)
         .gte('date_facture', monthStart)
         .lte('date_facture', monthEnd)
-        .order('date_facture', { ascending: false });
+        .order('date_facture', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       console.log('📊 loadFactures - Données chargées:', data?.length, 'factures');
@@ -223,6 +228,24 @@ export function Factures() {
       console.error('Erreur lors du chargement:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadFournisseurs() {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('fournisseurs')
+        .select('id, nom')
+        .eq('boucherie_id', user.boucherie_id)
+        .eq('actif', true)
+        .order('nom');
+
+      if (error) throw error;
+      setFournisseurs(data || []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des fournisseurs:', error);
     }
   }
 
@@ -340,21 +363,7 @@ export function Factures() {
         if (error) throw error;
         setEditingId(null);
       } else {
-        // Mode création
-        const { data: existingFactures, error: checkError } = await supabase
-          .from('factures')
-          .select('id')
-          .eq('boucherie_id', user.boucherie_id)
-          .eq('date_facture', date_facture);
-
-        if (checkError) throw checkError;
-
-        if (existingFactures && existingFactures.length > 0) {
-          showError('Une facture existe déjà pour aujourd\'hui');
-          return;
-        }
-
-        // Créer d'abord la facture pour obtenir l'ID
+        // Mode création - Créer directement la facture (plusieurs factures par jour autorisées)
         const { data: newFacture, error: insertError } = await supabase
           .from('factures')
           .insert({
@@ -590,14 +599,19 @@ export function Factures() {
           <div className="form-grid">
             <div className="form-field">
               <label htmlFor="fournisseur">Fournisseur *</label>
-              <input
-                type="text"
+              <select
                 id="fournisseur"
                 value={formData.fournisseur}
                 onChange={(e) => handleInputChange('fournisseur', e.target.value)}
-                placeholder="Metro, Rungis..."
                 required
-              />
+              >
+                <option value="">Sélectionnez un fournisseur</option>
+                {fournisseurs.map((f) => (
+                  <option key={f.id} value={f.nom}>
+                    {f.nom}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="form-field full-width">
@@ -719,14 +733,20 @@ export function Factures() {
           <>
             {/* Vue cartes */}
             <div className="factures-cards">
-              {factures.map((facture) => (
-                <FactureCard
-                  key={facture.id}
-                  facture={facture}
-                  onEdit={handleEdit}
-                  isHighlighted={highlightedId === facture.id}
-                />
-              ))}
+              {factures.map((facture) => {
+                const todayStr = format(today, 'yyyy-MM-dd');
+                const isToday = facture.date_facture === todayStr;
+
+                return (
+                  <FactureCard
+                    key={facture.id}
+                    facture={facture}
+                    onEdit={handleEdit}
+                    isHighlighted={highlightedId === facture.id}
+                    isToday={isToday}
+                  />
+                );
+              })}
             </div>
 
             {/* Vue tableau (masquée, conservée pour référence future) */}

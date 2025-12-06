@@ -165,7 +165,8 @@ export function Encaissements() {
         .eq('boucherie_id', user.boucherie_id)
         .gte('date', monthStart)
         .lte('date', monthEnd)
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setEncaissements(data || []);
@@ -270,6 +271,7 @@ export function Encaissements() {
       // Sauvegarder l'ID avant de réinitialiser
       const savedEditingId = editingId;
 
+      // Recharger les données
       await loadEncaissements();
       showSuccess('Encaissement enregistré !');
 
@@ -285,24 +287,13 @@ export function Encaissements() {
           }
         }, 100);
 
-        // Réinitialiser le formulaire avec les données du jour
-        const todayData = encaissements.find((e) => e.date === todayStr);
-        if (todayData) {
-          setFormData({
-            espece: todayData.espece.toString(),
-            cb: todayData.cb.toString(),
-            ch_vr: todayData.ch_vr.toString(),
-            tr: todayData.tr.toString(),
-          });
-        } else {
-          setFormData({ espece: '', cb: '', ch_vr: '', tr: '' });
-        }
-
         // Retirer la surbrillance après 3 secondes
         setTimeout(() => {
           setHighlightedId(null);
         }, 3000);
       }
+
+      // Note: Le formulaire sera réinitialisé automatiquement par loadEncaissements() ligne 173-182
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       showError('Erreur lors de la sauvegarde');
