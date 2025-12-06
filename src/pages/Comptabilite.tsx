@@ -217,6 +217,16 @@ export function Comptabilite() {
       const totalFactures = factures.reduce((sum, f) => sum + f.montant, 0);
       const totalEncaissements = encaissements.reduce((sum, e) => sum + e.total, 0);
 
+      // Calculer les statistiques des factures par fournisseur
+      const facturesParFournisseur: { [key: string]: { count: number; total: number } } = {};
+      factures.forEach(f => {
+        if (!facturesParFournisseur[f.fournisseur]) {
+          facturesParFournisseur[f.fournisseur] = { count: 0, total: 0 };
+        }
+        facturesParFournisseur[f.fournisseur].count++;
+        facturesParFournisseur[f.fournisseur].total += f.montant;
+      });
+
       // Envoyer l'email avec les 2 fichiers et les totaux
       const emailResult = await sendComptabiliteEmail(
         boucherie.email_comptable,
@@ -228,7 +238,8 @@ export function Comptabilite() {
         boucherie.smtp_password,
         {
           totalFactures,
-          totalEncaissements
+          totalEncaissements,
+          facturesParFournisseur
         }
       );
 
@@ -513,7 +524,7 @@ export function Comptabilite() {
 
         <ConfirmModal
           isOpen={showConfirmModal}
-          title="localhost:5174 indique"
+          title="Confirmation d'envoi"
           message={`Envoyer ${factures.length} facture(s) et ${encaissements.length} encaissement(s) à ${boucherie?.email_comptable || ''} ?`}
           confirmText="OK"
           cancelText="Annuler"
@@ -524,7 +535,7 @@ export function Comptabilite() {
 
         <ConfirmModal
           isOpen={showSuccessModal}
-          title="localhost:5174 indique"
+          title="Envoi réussi"
           message="Comptabilité envoyée avec succès !"
           confirmText="OK"
           confirmVariant="success"
@@ -534,7 +545,7 @@ export function Comptabilite() {
 
         <ConfirmModal
           isOpen={showErrorModal}
-          title="localhost:5174 indique"
+          title="Erreur d'envoi"
           message={`Erreur lors de l'envoi: ${errorMessage}`}
           confirmText="OK"
           confirmVariant="danger"

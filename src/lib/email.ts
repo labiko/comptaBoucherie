@@ -86,6 +86,7 @@ export async function sendComptabiliteEmail(
   totaux?: {
     totalFactures: number;
     totalEncaissements: number;
+    facturesParFournisseur?: { [key: string]: { count: number; total: number } };
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -96,8 +97,39 @@ export async function sendComptabiliteEmail(
 
     const subject = `Comptabilité ${moisNoms[mois - 1]} ${annee} - ${boucherieNom}`;
 
+    // Générer le tableau des factures par fournisseur
+    let facturesFournisseursHtml = '';
+    if (totaux?.facturesParFournisseur) {
+      const fournisseursSorted = Object.entries(totaux.facturesParFournisseur)
+        .sort((a, b) => b[1].total - a[1].total);
+
+      if (fournisseursSorted.length > 0) {
+        facturesFournisseursHtml = `
+          <h3>📋 Détail des factures par fournisseur</h3>
+          <table style="border-collapse: collapse; margin: 20px 0; font-family: Arial, sans-serif; width: 100%; max-width: 600px;">
+            <thead>
+              <tr style="background-color: #d32f2f; color: white;">
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Fournisseur</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Nombre</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Montant Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${fournisseursSorted.map(([fournisseur, stats], index) => `
+                <tr style="background-color: ${index % 2 === 0 ? '#f9f9f9' : '#ffffff'};">
+                  <td style="padding: 10px; border: 1px solid #ddd;">${fournisseur}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${stats.count}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${stats.total.toFixed(2)} €</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
     const totauxHtml = totaux ? `
-      <h3>📊 Récapitulatif</h3>
+      <h3>📊 Récapitulatif global</h3>
       <table style="border-collapse: collapse; margin: 20px 0; font-family: Arial, sans-serif;">
         <tr style="background-color: #f0f0f0;">
           <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">💰 Total Encaissements</td>
@@ -112,6 +144,7 @@ export async function sendComptabiliteEmail(
           <td style="padding: 12px; border: 2px solid #1976d2; text-align: right; font-weight: bold; color: ${(totaux.totalEncaissements - totaux.totalFactures) >= 0 ? '#2e7d32' : '#c62828'};">${(totaux.totalEncaissements - totaux.totalFactures).toFixed(2)} €</td>
         </tr>
       </table>
+      ${facturesFournisseursHtml}
     ` : '';
 
     const html = `

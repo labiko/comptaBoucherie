@@ -6,8 +6,11 @@ interface EmailRequest {
   to: string;
   subject: string;
   html: string;
-  attachmentBase64: string;
-  attachmentFilename: string;
+  // Support pour un seul attachement (rétrocompatibilité)
+  attachmentBase64?: string;
+  attachmentFilename?: string;
+  // Support pour plusieurs attachements
+  attachments?: Array<{ content: string; filename: string }>;
   // Credentials SMTP spécifiques à la boucherie (obligatoires)
   smtpEmail: string;
   smtpPassword: string;
@@ -25,7 +28,7 @@ serve(async (req) => {
   }
 
   try {
-    const { to, subject, html, attachmentBase64, attachmentFilename, smtpEmail, smtpPassword }: EmailRequest = await req.json();
+    const { to, subject, html, attachmentBase64, attachmentFilename, attachments, smtpEmail, smtpPassword }: EmailRequest = await req.json();
 
     // Vérifier que les credentials SMTP sont fournis
     if (!smtpEmail || !smtpPassword) {
@@ -43,20 +46,37 @@ serve(async (req) => {
       },
     });
 
-    // Envoyer l'email avec pièce jointe
-    const info = await transporter.sendMail({
-      from: smtpEmail,
-      to: to,
-      subject: subject,
-      html: html,
-      attachments: [
+    // Préparer les attachements
+    let emailAttachments = [];
+
+    // Si plusieurs attachements sont fournis (nouveau format)
+    if (attachments && attachments.length > 0) {
+      emailAttachments = attachments.map(att => ({
+        filename: att.filename,
+        content: att.content,
+        encoding: "base64",
+        contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }));
+    }
+    // Sinon, utiliser l'ancien format (rétrocompatibilité)
+    else if (attachmentBase64 && attachmentFilename) {
+      emailAttachments = [
         {
           filename: attachmentFilename,
           content: attachmentBase64,
           encoding: "base64",
           contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
-      ],
+      ];
+    }
+
+    // Envoyer l'email avec pièce(s) jointe(s)
+    const info = await transporter.sendMail({
+      from: smtpEmail,
+      to: to,
+      subject: subject,
+      html: html,
+      attachments: emailAttachments,
     });
 
     console.log('Email envoyé:', info.messageId);

@@ -234,11 +234,15 @@ button:disabled {
 
 .preview-table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .preview-table {
   width: 100%;
+  min-width: 600px; /* Force minimum width to enable horizontal scroll on mobile */
   border-collapse: collapse;
   font-size: 0.9rem;
 }
