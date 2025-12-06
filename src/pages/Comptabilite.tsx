@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import type { Boucherie, Facture, EnvoiComptabilite } from '../types';
-import { generateFacturesExcel, downloadExcel, generateExcelFilename } from '../lib/csv';
-import { sendFacturesCsvEmail, saveEnvoiComptabilite, getEnvoisHistory } from '../lib/email';
+import type { Boucherie, Facture, Encaissement, EnvoiComptabilite } from '../types';
+import { generateFacturesExcel, generateEncaissementsExcel, downloadExcel, generateExcelFilename } from '../lib/csv';
+import { sendComptabiliteEmail, saveEnvoiComptabilite, getEnvoisHistory } from '../lib/email';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -28,6 +28,7 @@ export function Comptabilite() {
 
   // Prévisualisation des données
   const [factures, setFactures] = useState<Facture[]>([]);
+  const [encaissements, setEncaissements] = useState<Encaissement[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
   const moisNoms = [
@@ -108,11 +109,48 @@ export function Comptabilite() {
       if (error) throw error;
 
       setFactures((data as Facture[]) || []);
+
+      // Charger aussi les encaissements
+      await loadEncaissementsPreview();
+
       setShowPreview(true);
 
     } catch (error) {
       console.error('Erreur chargement factures:', error);
       alert('Erreur lors du chargement des factures');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadEncaissementsPreview() {
+    if (!user?.boucherie_id) return;
+
+    setLoading(true);
+
+    try {
+      // Calculer les dates de début et fin du mois
+      const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
+      const endDate = new Date(selectedAnnee, selectedMois, 0);
+
+      const startDateStr = format(startDate, 'yyyy-MM-dd');
+      const endDateStr = format(endDate, 'yyyy-MM-dd');
+
+      const { data, error } = await supabase
+        .from('encaissements')
+        .select('*')
+        .eq('boucherie_id', user.boucherie_id)
+        .gte('date', startDateStr)
+        .lte('date', endDateStr)
+        .order('date', { ascending: true });
+
+      if (error) throw error;
+
+      setEncaissements((data as Encaissement[]) || []);
+
+    } catch (error) {
+      console.error('Erreur chargement encaissements:', error);
+      alert('Erreur lors du chargement des encaissements');
     } finally {
       setLoading(false);
     }
@@ -147,15 +185,6 @@ export function Comptabilite() {
         return;
       }
 
-      // Générer l'Excel
-      const excelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
-      const filename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
-
-      // Convertir ArrayBuffer en base64 pour l'email
-      const base64Excel = btoa(
-        new Uint8Array(excelBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-
       // Vérifier que les credentials SMTP sont configurés
       if (!boucherie.smtp_email || !boucherie.smtp_password) {
         setErrorMessage('Configuration SMTP manquante. Veuillez configurer votre email Gmail et mot de passe d\'application dans Administration > Configuration Email');
@@ -164,19 +193,46 @@ export function Comptabilite() {
         return;
       }
 
-      // Envoyer l'email avec les credentials SMTP de la boucherie
-      const emailResult = await sendFacturesCsvEmail(
+      // Générer l'Excel des factures
+      const facturesExcelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
+      const facturesFilename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
+      const facturesBase64 = btoa(
+        new Uint8Array(facturesExcelBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+
+      // Générer l'Excel des encaissements
+      const encaissementsExcelBuffer = generateEncaissementsExcel(encaissements, boucherie.nom, selectedMois, selectedAnnee);
+      const encaissementsFilename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'encaissements');
+      const encaissementsBase64 = btoa(
+        new Uint8Array(encaissementsExcelBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+
+      // Préparer les attachments
+      const attachments = [
+        { base64: facturesBase64, filename: facturesFilename },
+        { base64: encaissementsBase64, filename: encaissementsFilename }
+      ];
+
+      // Calculer les totaux
+      const totalFactures = factures.reduce((sum, f) => sum + f.montant, 0);
+      const totalEncaissements = encaissements.reduce((sum, e) => sum + e.total, 0);
+
+      // Envoyer l'email avec les 2 fichiers et les totaux
+      const emailResult = await sendComptabiliteEmail(
         boucherie.email_comptable,
-        base64Excel,
-        filename,
+        attachments,
         selectedMois,
         selectedAnnee,
         boucherie.nom,
         boucherie.smtp_email,
-        boucherie.smtp_password
+        boucherie.smtp_password,
+        {
+          totalFactures,
+          totalEncaissements
+        }
       );
 
-      // Enregistrer l'envoi dans la base
+      // Enregistrer les 2 envois dans la base
       await saveEnvoiComptabilite(
         user.boucherie_id,
         'factures',
@@ -184,6 +240,18 @@ export function Comptabilite() {
         selectedAnnee,
         boucherie.email_comptable,
         factures.length,
+        user.id,
+        emailResult.success ? 'envoye' : 'erreur',
+        emailResult.error
+      );
+
+      await saveEnvoiComptabilite(
+        user.boucherie_id,
+        'encaissements',
+        selectedMois,
+        selectedAnnee,
+        boucherie.email_comptable,
+        encaissements.length,
         user.id,
         emailResult.success ? 'envoye' : 'erreur',
         emailResult.error
@@ -209,12 +277,21 @@ export function Comptabilite() {
   }
 
   function handleDownloadExcel() {
-    if (!boucherie || factures.length === 0) return;
+    if (!boucherie) return;
 
-    const excelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
-    const filename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
+    // Télécharger les factures
+    if (factures.length > 0) {
+      const facturesExcelBuffer = generateFacturesExcel(factures, boucherie.nom, selectedMois, selectedAnnee);
+      const facturesFilename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'factures');
+      downloadExcel(facturesExcelBuffer, facturesFilename);
+    }
 
-    downloadExcel(excelBuffer, filename);
+    // Télécharger les encaissements
+    if (encaissements.length > 0) {
+      const encaissementsExcelBuffer = generateEncaissementsExcel(encaissements, boucherie.nom, selectedMois, selectedAnnee);
+      const encaissementsFilename = generateExcelFilename(boucherie.nom, selectedMois, selectedAnnee, 'encaissements');
+      downloadExcel(encaissementsExcelBuffer, encaissementsFilename);
+    }
   }
 
   return (
@@ -326,54 +403,109 @@ export function Comptabilite() {
           {showPreview && (
             <div className="preview-section">
               <h3>Aperçu des données</h3>
+
+              {/* Prévisualisation des Factures */}
+              <h4>📄 Factures</h4>
               <p className="preview-info">
                 {factures.length} facture(s) pour {moisNoms[selectedMois - 1]} {selectedAnnee}
               </p>
 
               {factures.length > 0 && (
-                <>
-                  <div className="preview-table-container">
-                    <table className="preview-table">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Fournisseur</th>
-                          <th>Montant</th>
-                          <th>Réglé</th>
+                <div className="preview-table-container">
+                  <table className="preview-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Fournisseur</th>
+                        <th>Montant</th>
+                        <th>Réglé</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {factures.slice(0, 5).map(facture => (
+                        <tr key={facture.id}>
+                          <td>{format(new Date(facture.date_facture), 'dd/MM/yyyy')}</td>
+                          <td>{facture.fournisseur}</td>
+                          <td>{facture.montant.toFixed(2)} €</td>
+                          <td>{facture.regle ? '✅' : '❌'}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {factures.slice(0, 5).map(facture => (
-                          <tr key={facture.id}>
-                            <td>{format(new Date(facture.date_facture), 'dd/MM/yyyy')}</td>
-                            <td>{facture.fournisseur}</td>
-                            <td>{facture.montant.toFixed(2)} €</td>
-                            <td>{facture.regle ? '✅' : '❌'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {factures.length > 5 && (
-                      <p className="preview-more">... et {factures.length - 5} autre(s)</p>
-                    )}
-                  </div>
+                      ))}
+                      <tr style={{ fontWeight: 'bold', backgroundColor: '#f0f0f0', borderTop: '2px solid #333' }}>
+                        <td colSpan={2}>TOTAL</td>
+                        <td>{factures.reduce((sum, f) => sum + f.montant, 0).toFixed(2)} €</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  {factures.length > 5 && (
+                    <p className="preview-more">... et {factures.length - 5} autre(s)</p>
+                  )}
+                </div>
+              )}
 
-                  <div className="preview-actions">
-                    <button
-                      onClick={handleDownloadExcel}
-                      className="btn-download btn-excel"
-                    >
-                      📊 Télécharger Excel
-                    </button>
-                    <button
-                      onClick={handleOpenConfirmModal}
-                      disabled={loading || !boucherie?.email_comptable}
-                      className="btn-send"
-                    >
-                      {loading ? '⏳ Envoi...' : '📧 Générer et envoyer'}
-                    </button>
-                  </div>
-                </>
+              {/* Prévisualisation des Encaissements */}
+              <h4 style={{ marginTop: '20px' }}>💰 Encaissements</h4>
+              <p className="preview-info">
+                {encaissements.length} encaissement(s) pour {moisNoms[selectedMois - 1]} {selectedAnnee}
+              </p>
+
+              {encaissements.length > 0 && (
+                <div className="preview-table-container">
+                  <table className="preview-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Espèce</th>
+                        <th>CB</th>
+                        <th>CH/VR</th>
+                        <th>TR</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {encaissements.slice(0, 5).map(enc => (
+                        <tr key={enc.id}>
+                          <td>{format(new Date(enc.date), 'dd/MM/yyyy')}</td>
+                          <td>{enc.espece.toFixed(2)} €</td>
+                          <td>{enc.cb.toFixed(2)} €</td>
+                          <td>{enc.ch_vr.toFixed(2)} €</td>
+                          <td>{enc.tr.toFixed(2)} €</td>
+                          <td><strong>{enc.total.toFixed(2)} €</strong></td>
+                        </tr>
+                      ))}
+                      <tr style={{ fontWeight: 'bold', backgroundColor: '#f0f0f0', borderTop: '2px solid #333' }}>
+                        <td>TOTAL</td>
+                        <td>{encaissements.reduce((sum, e) => sum + e.espece, 0).toFixed(2)} €</td>
+                        <td>{encaissements.reduce((sum, e) => sum + e.cb, 0).toFixed(2)} €</td>
+                        <td>{encaissements.reduce((sum, e) => sum + e.ch_vr, 0).toFixed(2)} €</td>
+                        <td>{encaissements.reduce((sum, e) => sum + e.tr, 0).toFixed(2)} €</td>
+                        <td><strong>{encaissements.reduce((sum, e) => sum + e.total, 0).toFixed(2)} €</strong></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  {encaissements.length > 5 && (
+                    <p className="preview-more">... et {encaissements.length - 5} autre(s)</p>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              {(factures.length > 0 || encaissements.length > 0) && (
+                <div className="preview-actions">
+                  <button
+                    onClick={handleDownloadExcel}
+                    className="btn-download btn-excel"
+                  >
+                    📊 Télécharger Excel
+                  </button>
+                  <button
+                    onClick={handleOpenConfirmModal}
+                    disabled={loading || !boucherie?.email_comptable}
+                    className="btn-send"
+                  >
+                    {loading ? '⏳ Envoi...' : '📧 Générer et envoyer'}
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -382,7 +514,7 @@ export function Comptabilite() {
         <ConfirmModal
           isOpen={showConfirmModal}
           title="localhost:5174 indique"
-          message={`Envoyer ${factures.length} facture(s) à ${boucherie?.email_comptable || ''} ?`}
+          message={`Envoyer ${factures.length} facture(s) et ${encaissements.length} encaissement(s) à ${boucherie?.email_comptable || ''} ?`}
           confirmText="OK"
           cancelText="Annuler"
           confirmVariant="primary"
@@ -393,7 +525,7 @@ export function Comptabilite() {
         <ConfirmModal
           isOpen={showSuccessModal}
           title="localhost:5174 indique"
-          message="Factures envoyées avec succès !"
+          message="Comptabilité envoyée avec succès !"
           confirmText="OK"
           confirmVariant="success"
           onConfirm={() => setShowSuccessModal(false)}

@@ -325,6 +325,8 @@ export function Factures() {
       if (editingId) {
         // Mode édition
         const updateData: any = {
+          date_facture,
+          echeance,
           fournisseur: formData.fournisseur,
           description: formData.description,
           montant,
@@ -628,6 +630,7 @@ export function Factures() {
                 type="date"
                 id="date_facture"
                 value={formData.date_facture}
+                max={format(today, 'yyyy-MM-dd')}
                 onChange={(e) => handleInputChange('date_facture', e.target.value)}
                 required
               />

@@ -231,6 +231,7 @@ export function Encaissements() {
         const { error } = await supabase
           .from('encaissements')
           .update({
+            date: dateToUse,
             espece,
             cb,
             ch_vr,
@@ -441,6 +442,7 @@ export function Encaissements() {
                 type="date"
                 id="date"
                 value={formData.date}
+                max={todayStr}
                 onChange={(e) => handleInputChange('date', e.target.value)}
                 required
               />

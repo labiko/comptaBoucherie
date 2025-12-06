@@ -1,5 +1,5 @@
 // Utilitaires pour la génération de fichiers CSV et Excel
-import type { Facture } from '../types';
+import type { Facture, Encaissement } from '../types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
@@ -365,6 +365,227 @@ export function downloadExcel(arrayBuffer: ArrayBuffer, filename: string): void 
   document.body.removeChild(link);
 
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Génère un fichier Excel des encaissements pour un mois donné
+ */
+export function generateEncaissementsExcel(
+  encaissements: Encaissement[],
+  boucherieNom: string,
+  mois: number,
+  annee: number
+): ArrayBuffer {
+  // Créer le workbook et une feuille vide
+  const wb = XLSX.utils.book_new();
+  const ws: XLSX.WorkSheet = {};
+
+  // Noms des mois en français
+  const moisNoms = [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+  ];
+
+  // Date de génération
+  const dateGeneration = format(new Date(), 'dd/MM/yyyy à HH:mm', { locale: fr });
+
+  // === EN-TÊTE PROFESSIONNEL (Lignes 1-4) ===
+
+  // Ligne 1: "ENCAISSEMENTS - [Nom boucherie]"
+  ws['A1'] = { v: `ENCAISSEMENTS - ${boucherieNom}`, t: 's' };
+  ws['A1'].s = {
+    font: { bold: true, sz: 16, color: { rgb: '8B1538' } }, // Couleur bordeaux
+    alignment: { horizontal: 'center', vertical: 'center' }
+  };
+
+  // Ligne 2: "Période : [Mois] [Année]"
+  ws['A2'] = { v: `Période : ${moisNoms[mois - 1]} ${annee}`, t: 's' };
+  ws['A2'].s = {
+    font: { italic: true, sz: 12, color: { rgb: '2C3E50' } },
+    alignment: { horizontal: 'center', vertical: 'center' }
+  };
+
+  // Ligne 3: "Généré le : [Date]"
+  ws['A3'] = { v: `Généré le : ${dateGeneration}`, t: 's' };
+  ws['A3'].s = {
+    font: { sz: 10, color: { rgb: '7F8C8D' } },
+    alignment: { horizontal: 'center', vertical: 'center' }
+  };
+
+  // Ligne 4: Vide (séparation)
+
+  // === EN-TÊTE DU TABLEAU (Ligne 5) ===
+  const headers = [
+    'Date',
+    'Espèce (€)',
+    'CB (€)',
+    'CH/VR (€)',
+    'TR (€)',
+    'Total (€)'
+  ];
+
+  headers.forEach((header, colIndex) => {
+    const cellAddress = XLSX.utils.encode_cell({ r: 4, c: colIndex });
+    ws[cellAddress] = { v: header, t: 's' };
+    ws[cellAddress].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+      fill: { fgColor: { rgb: '8B1538' } }, // Couleur bordeaux
+      alignment: { horizontal: 'center', vertical: 'center' },
+      border: {
+        top: { style: 'medium', color: { rgb: '8B1538' } },
+        bottom: { style: 'medium', color: { rgb: '8B1538' } },
+        left: { style: 'thin', color: { rgb: '8B1538' } },
+        right: { style: 'thin', color: { rgb: '8B1538' } }
+      }
+    };
+  });
+
+  // === DONNÉES DES ENCAISSEMENTS (Lignes 6+) ===
+  let totalEspece = 0;
+  let totalCb = 0;
+  let totalChVr = 0;
+  let totalTr = 0;
+  let totalGeneral = 0;
+
+  encaissements.forEach((encaissement, rowIndex) => {
+    const excelRow = rowIndex + 5; // Ligne 6 = index 5
+    const isEvenRow = rowIndex % 2 === 0; // Alterner les couleurs
+
+    // Calculer les totaux
+    totalEspece += encaissement.espece;
+    totalCb += encaissement.cb;
+    totalChVr += encaissement.ch_vr;
+    totalTr += encaissement.tr;
+    totalGeneral += encaissement.total;
+
+    // Données de la ligne
+    const rowData = [
+      { v: format(new Date(encaissement.date), 'dd/MM/yyyy', { locale: fr }), t: 's' },
+      { v: encaissement.espece, t: 'n' },
+      { v: encaissement.cb, t: 'n' },
+      { v: encaissement.ch_vr, t: 'n' },
+      { v: encaissement.tr, t: 'n' },
+      { v: encaissement.total, t: 'n' }
+    ];
+
+    rowData.forEach((cell, colIndex) => {
+      const cellAddress = XLSX.utils.encode_cell({ r: excelRow, c: colIndex });
+      ws[cellAddress] = cell;
+
+      // Style de la cellule avec alternance de couleurs
+      ws[cellAddress].s = {
+        fill: {
+          fgColor: { rgb: isEvenRow ? 'FFFFFF' : 'F2F2F2' } // Blanc/Gris clair alterné
+        },
+        font: {
+          color: { rgb: '000000' } // Texte noir
+        },
+        alignment: { vertical: 'center', horizontal: colIndex === 0 ? 'center' : 'right' },
+        border: {
+          top: { style: 'thin', color: { rgb: 'D0D0D0' } },
+          bottom: { style: 'thin', color: { rgb: 'D0D0D0' } },
+          left: { style: 'thin', color: { rgb: 'D0D0D0' } },
+          right: { style: 'thin', color: { rgb: 'D0D0D0' } }
+        }
+      };
+
+      // Format des nombres avec 2 décimales pour toutes les colonnes de montants
+      if (colIndex >= 1 && colIndex <= 5) {
+        ws[cellAddress].z = '#,##0.00';
+      }
+
+      // Mise en évidence de la colonne "Total" en gras
+      if (colIndex === 5) {
+        ws[cellAddress].s.font = {
+          bold: true,
+          color: { rgb: '000000' }
+        };
+      }
+    });
+  });
+
+  // === LIGNE DE TOTAUX ===
+  const totalRow = encaissements.length + 5; // Après le dernier encaissement
+
+  // Cellules de la ligne de totaux
+  ws[XLSX.utils.encode_cell({ r: totalRow, c: 0 })] = { v: 'TOTAL', t: 's' };
+  ws[XLSX.utils.encode_cell({ r: totalRow, c: 1 })] = { v: totalEspece, t: 'n' };
+  ws[XLSX.utils.encode_cell({ r: totalRow, c: 2 })] = { v: totalCb, t: 'n' };
+  ws[XLSX.utils.encode_cell({ r: totalRow, c: 3 })] = { v: totalChVr, t: 'n' };
+  ws[XLSX.utils.encode_cell({ r: totalRow, c: 4 })] = { v: totalTr, t: 'n' };
+  ws[XLSX.utils.encode_cell({ r: totalRow, c: 5 })] = { v: totalGeneral, t: 'n' };
+
+  // Style de la ligne de totaux
+  for (let c = 0; c <= 5; c++) {
+    const cellAddress = XLSX.utils.encode_cell({ r: totalRow, c });
+    if (!ws[cellAddress]) {
+      ws[cellAddress] = { v: '', t: 's' };
+    }
+    ws[cellAddress].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+      fill: { fgColor: { rgb: '5A6C7D' } },
+      alignment: { horizontal: c === 0 ? 'center' : 'right', vertical: 'center' },
+      border: {
+        top: { style: 'medium', color: { rgb: '2C3E50' } }, // Bordure supérieure épaisse
+        bottom: { style: 'medium', color: { rgb: '2C3E50' } },
+        left: { style: 'thin', color: { rgb: '5A6C7D' } },
+        right: { style: 'thin', color: { rgb: '5A6C7D' } }
+      }
+    };
+
+    // Format des montants dans les totaux
+    if (c >= 1 && c <= 5) {
+      ws[cellAddress].z = '#,##0.00';
+    }
+  }
+
+  // === CONFIGURATION DE LA FEUILLE ===
+
+  // Définir les largeurs de colonnes
+  ws['!cols'] = [
+    { wch: 12 }, // Date
+    { wch: 12 }, // Espèce
+    { wch: 12 }, // CB
+    { wch: 12 }, // CH/VR
+    { wch: 12 }, // TR
+    { wch: 12 }  // Total
+  ];
+
+  // Définir les hauteurs de lignes
+  ws['!rows'] = [
+    { hpt: 24 }, // Ligne 1: Titre principal
+    { hpt: 18 }, // Ligne 2: Période
+    { hpt: 15 }, // Ligne 3: Date génération
+    { hpt: 15 }, // Ligne 4: Séparation
+    { hpt: 22 }  // Ligne 5: En-tête du tableau (plus haute)
+  ];
+
+  // Fusionner les cellules de l'en-tête (lignes 1-3) sur toutes les colonnes
+  ws['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }, // Ligne 1
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 5 } }, // Ligne 2
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 5 } }  // Ligne 3
+  ];
+
+  // Définir la plage de la feuille
+  ws['!ref'] = XLSX.utils.encode_range({
+    s: { r: 0, c: 0 },
+    e: { r: totalRow, c: 5 }
+  });
+
+  // Activer les filtres automatiques sur l'en-tête du tableau (ligne 5)
+  ws['!autofilter'] = {
+    ref: XLSX.utils.encode_range({
+      s: { r: 4, c: 0 },
+      e: { r: encaissements.length + 4, c: 5 }
+    })
+  };
+
+  // Ajouter la feuille au workbook
+  XLSX.utils.book_append_sheet(wb, ws, 'Encaissements');
+
+  // Générer le fichier Excel en ArrayBuffer
+  return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 }
 
 /**
