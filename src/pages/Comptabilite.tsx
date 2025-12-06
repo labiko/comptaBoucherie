@@ -415,89 +415,95 @@ export function Comptabilite() {
             <div className="preview-section">
               <h3>Aperçu des données</h3>
 
-              {/* Prévisualisation des Factures */}
-              <h4>📄 Factures</h4>
-              <p className="preview-info">
-                {factures.length} facture(s) pour {moisNoms[selectedMois - 1]} {selectedAnnee}
-              </p>
-
-              {factures.length > 0 && (
-                <div className="preview-table-container">
-                  <table className="preview-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Fournisseur</th>
-                        <th>Montant</th>
-                        <th>Réglé</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {factures.slice(0, 5).map(facture => (
-                        <tr key={facture.id}>
-                          <td>{format(new Date(facture.date_facture), 'dd/MM/yyyy')}</td>
-                          <td>{facture.fournisseur}</td>
-                          <td>{facture.montant.toFixed(2)} €</td>
-                          <td>{facture.regle ? '✅' : '❌'}</td>
-                        </tr>
-                      ))}
-                      <tr style={{ fontWeight: 'bold', backgroundColor: '#f0f0f0', borderTop: '2px solid #333' }}>
-                        <td colSpan={2}>TOTAL</td>
-                        <td>{factures.reduce((sum, f) => sum + f.montant, 0).toFixed(2)} €</td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  {factures.length > 5 && (
-                    <p className="preview-more">... et {factures.length - 5} autre(s)</p>
-                  )}
+              {/* Récapitulatif des totaux */}
+              <div className="totaux-recap">
+                <div className="recap-card factures">
+                  <div className="recap-icon">📄</div>
+                  <div className="recap-content">
+                    <div className="recap-label">Factures</div>
+                    <div className="recap-count">{factures.length} facture(s)</div>
+                    <div className="recap-montant">{factures.reduce((sum, f) => sum + f.montant, 0).toFixed(2)} €</div>
+                  </div>
                 </div>
+
+                <div className="recap-card encaissements">
+                  <div className="recap-icon">💰</div>
+                  <div className="recap-content">
+                    <div className="recap-label">Encaissements</div>
+                    <div className="recap-count">{encaissements.length} jour(s)</div>
+                    <div className="recap-montant">{encaissements.reduce((sum, e) => sum + e.total, 0).toFixed(2)} €</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prévisualisation des Factures */}
+              {factures.length > 0 && (
+                <>
+                  <h4 className="preview-subtitle">📄 Détail des factures</h4>
+                  <div className="preview-cards-container">
+                    {factures.slice(0, 5).map(facture => (
+                      <div key={facture.id} className="preview-card">
+                        <div className="preview-card-header">
+                          <span className="preview-card-date">{format(new Date(facture.date_facture), 'dd/MM/yyyy')}</span>
+                          <span className={`preview-card-badge ${facture.regle ? 'regle' : 'non-regle'}`}>
+                            {facture.regle ? '✅ Réglé' : '⏳ En attente'}
+                          </span>
+                        </div>
+                        <div className="preview-card-body">
+                          <div className="preview-card-fournisseur">{facture.fournisseur}</div>
+                          <div className="preview-card-montant">{facture.montant.toFixed(2)} €</div>
+                        </div>
+                      </div>
+                    ))}
+                    {factures.length > 5 && (
+                      <div className="preview-more-card">
+                        ... et {factures.length - 5} autre(s) facture(s)
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
               {/* Prévisualisation des Encaissements */}
-              <h4 style={{ marginTop: '20px' }}>💰 Encaissements</h4>
-              <p className="preview-info">
-                {encaissements.length} encaissement(s) pour {moisNoms[selectedMois - 1]} {selectedAnnee}
-              </p>
-
               {encaissements.length > 0 && (
-                <div className="preview-table-container">
-                  <table className="preview-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Espèce</th>
-                        <th>CB</th>
-                        <th>CH/VR</th>
-                        <th>TR</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {encaissements.slice(0, 5).map(enc => (
-                        <tr key={enc.id}>
-                          <td>{format(new Date(enc.date), 'dd/MM/yyyy')}</td>
-                          <td>{enc.espece.toFixed(2)} €</td>
-                          <td>{enc.cb.toFixed(2)} €</td>
-                          <td>{enc.ch_vr.toFixed(2)} €</td>
-                          <td>{enc.tr.toFixed(2)} €</td>
-                          <td><strong>{enc.total.toFixed(2)} €</strong></td>
-                        </tr>
-                      ))}
-                      <tr style={{ fontWeight: 'bold', backgroundColor: '#f0f0f0', borderTop: '2px solid #333' }}>
-                        <td>TOTAL</td>
-                        <td>{encaissements.reduce((sum, e) => sum + e.espece, 0).toFixed(2)} €</td>
-                        <td>{encaissements.reduce((sum, e) => sum + e.cb, 0).toFixed(2)} €</td>
-                        <td>{encaissements.reduce((sum, e) => sum + e.ch_vr, 0).toFixed(2)} €</td>
-                        <td>{encaissements.reduce((sum, e) => sum + e.tr, 0).toFixed(2)} €</td>
-                        <td><strong>{encaissements.reduce((sum, e) => sum + e.total, 0).toFixed(2)} €</strong></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  {encaissements.length > 5 && (
-                    <p className="preview-more">... et {encaissements.length - 5} autre(s)</p>
-                  )}
-                </div>
+                <>
+                  <h4 className="preview-subtitle">💰 Détail des encaissements</h4>
+                  <div className="preview-cards-container">
+                    {encaissements.slice(0, 5).map(enc => (
+                      <div key={enc.id} className="preview-card">
+                        <div className="preview-card-header">
+                          <span className="preview-card-date">{format(new Date(enc.date), 'dd/MM/yyyy')}</span>
+                          <span className="preview-card-total">{enc.total.toFixed(2)} €</span>
+                        </div>
+                        <div className="preview-card-body">
+                          <div className="preview-card-details">
+                            <div className="detail-item">
+                              <span className="detail-label">Espèce</span>
+                              <span className="detail-value">{enc.espece.toFixed(2)} €</span>
+                            </div>
+                            <div className="detail-item">
+                              <span className="detail-label">CB</span>
+                              <span className="detail-value">{enc.cb.toFixed(2)} €</span>
+                            </div>
+                            <div className="detail-item">
+                              <span className="detail-label">CH/VR</span>
+                              <span className="detail-value">{enc.ch_vr.toFixed(2)} €</span>
+                            </div>
+                            <div className="detail-item">
+                              <span className="detail-label">TR</span>
+                              <span className="detail-value">{enc.tr.toFixed(2)} €</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {encaissements.length > 5 && (
+                      <div className="preview-more-card">
+                        ... et {encaissements.length - 5} autre(s) encaissement(s)
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
               {/* Actions */}
@@ -505,16 +511,18 @@ export function Comptabilite() {
                 <div className="preview-actions">
                   <button
                     onClick={handleDownloadExcel}
-                    className="btn-download btn-excel"
+                    className="btn-action btn-download"
                   >
-                    📊 Télécharger Excel
+                    <span className="btn-icon">📊</span>
+                    <span className="btn-text">Télécharger Excel</span>
                   </button>
                   <button
                     onClick={handleOpenConfirmModal}
                     disabled={loading || !boucherie?.email_comptable}
-                    className="btn-send"
+                    className="btn-action btn-send"
                   >
-                    {loading ? '⏳ Envoi...' : '📧 Générer et envoyer'}
+                    <span className="btn-icon">{loading ? '⏳' : '📧'}</span>
+                    <span className="btn-text">{loading ? 'Envoi...' : 'Générer et envoyer'}</span>
                   </button>
                 </div>
               )}
