@@ -160,6 +160,9 @@ export function Dashboard() {
     ? ((stats.recette_jour - stats.recette_semaine_derniere) / stats.recette_semaine_derniere) * 100
     : 0;
 
+  // Calculer le total de la semaine actuelle
+  const totalSemaineActuelle = weekData.reduce((sum, item) => sum + item.total, 0);
+
   // Répartition des paiements
   const paymentData: PaymentDistribution[] = [
     { name: 'Espèce', value: stats.total_espece, color: '#2D7D4C' },
@@ -179,6 +182,12 @@ export function Dashboard() {
           className="highlight"
         >
           <div className="stat-value">{formatMontantAvecDevise(stats.recette_jour)}</div>
+          <div style={{ fontSize: '14px', color: '#999', marginTop: '8px', marginBottom: '4px' }}>
+            Semaine dernière : {formatMontantAvecDevise(stats.recette_semaine_derniere)}
+          </div>
+          <div style={{ fontSize: '16px', color: '#8B1538', fontWeight: '600', marginBottom: '12px' }}>
+            Semaine actuelle : {formatMontantAvecDevise(totalSemaineActuelle)}
+          </div>
           <div className="stat-comparisons">
             <div className={`stat-comparison ${variationJ7 >= 0 ? 'positive' : 'negative'}`}>
               {variationJ7 >= 0 ? '↑' : '↓'} {Math.abs(variationJ7).toFixed(1)}% vs J-7

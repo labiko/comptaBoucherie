@@ -147,9 +147,16 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
               color: '#8B1538',
               fontWeight: 'bold',
               fontSize: '13px',
+              marginBottom: '2px'
+            }}>
+              {item.currentWeek > 0 ? `${item.currentWeek.toFixed(2)}€` : '-'}
+            </div>
+            <div style={{
+              color: '#999',
+              fontSize: '11px',
               marginBottom: '4px'
             }}>
-              {item.currentWeek > 0 ? `${item.currentWeek}€` : '-'}
+              {item.previousWeek > 0 ? `(${item.previousWeek.toFixed(2)}€)` : ''}
             </div>
             <div style={{
               color: item.evolutionPercent >= 0 ? '#2D7D4C' : '#D32F2F',

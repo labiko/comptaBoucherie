@@ -27,12 +27,12 @@ SELECT
     AND boucherie_id = b.id
   ), 0) as recette_j7,
 
-  -- Recette même jour semaine dernière
+  -- Total de la semaine dernière (lundi à dimanche)
   COALESCE((
     SELECT SUM(total)
     FROM encaissements
-    WHERE EXTRACT(DOW FROM date) = EXTRACT(DOW FROM CURRENT_DATE)
-    AND date = CURRENT_DATE - INTERVAL '7 days'
+    WHERE date >= CURRENT_DATE - INTERVAL '7 days' - (CASE WHEN EXTRACT(DOW FROM CURRENT_DATE) = 0 THEN 6 ELSE EXTRACT(DOW FROM CURRENT_DATE) - 1 END) * INTERVAL '1 day'
+    AND date < CURRENT_DATE - (CASE WHEN EXTRACT(DOW FROM CURRENT_DATE) = 0 THEN 6 ELSE EXTRACT(DOW FROM CURRENT_DATE) - 1 END) * INTERVAL '1 day'
     AND boucherie_id = b.id
   ), 0) as recette_semaine_derniere,
 
@@ -98,8 +98,10 @@ FROM boucheries b
 WHERE b.actif = true;
 
 
--- Vue : Encaissements des 7 derniers jours
-CREATE OR REPLACE VIEW v_dashboard_week AS
+-- Vue : Encaissements de la semaine actuelle (lundi à dimanche)
+-- Groupe les encaissements multiples du même jour
+DROP VIEW IF EXISTS v_dashboard_week;
+CREATE VIEW v_dashboard_week AS
 SELECT
   e.boucherie_id,
   e.date,
@@ -113,10 +115,11 @@ SELECT
     WHEN 6 THEN 'Sam'
   END as jour_court,
   TO_CHAR(e.date, 'DD/MM') as date_format,
-  e.total
+  SUM(e.total) as total
 FROM encaissements e
-WHERE e.date >= CURRENT_DATE - INTERVAL '6 days'
-  AND e.date <= CURRENT_DATE
+WHERE e.date >= CURRENT_DATE - (CASE WHEN EXTRACT(DOW FROM CURRENT_DATE) = 0 THEN 6 ELSE EXTRACT(DOW FROM CURRENT_DATE) - 1 END) * INTERVAL '1 day'
+  AND e.date <= CURRENT_DATE + (CASE WHEN EXTRACT(DOW FROM CURRENT_DATE) = 0 THEN 0 ELSE 7 - EXTRACT(DOW FROM CURRENT_DATE) END) * INTERVAL '1 day'
+GROUP BY e.boucherie_id, e.date
 ORDER BY e.date ASC;
 
 
@@ -155,7 +158,7 @@ LIMIT 3;
 
 -- Commentaires
 COMMENT ON VIEW v_dashboard_stats IS 'Statistiques globales pour le dashboard : recettes, totaux, alertes';
-COMMENT ON VIEW v_dashboard_week IS 'Encaissements des 7 derniers jours pour le graphique hebdomadaire';
+COMMENT ON VIEW v_dashboard_week IS 'Encaissements de la semaine actuelle (lundi à dimanche) pour le graphique hebdomadaire';
 COMMENT ON VIEW v_dashboard_factures_retard IS 'Liste des factures impayées avec plus de 30 jours de retard';
 COMMENT ON VIEW v_dashboard_top_fournisseurs_impayes IS 'Top 3 des fournisseurs avec le plus d''impayés';
 
