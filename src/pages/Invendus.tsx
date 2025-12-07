@@ -1,0 +1,322 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
+import type { CategorieInvendu, Invendu } from '../types';
+import './Invendus.css';
+
+export default function Invendus() {
+  const { user } = useAuth();
+  const [invendus, setInvendus] = useState<Invendu[]>([]);
+  const [categories, setCategories] = useState<CategorieInvendu[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+
+  // Formulaire pour nouvel invendu
+  const [newInvendu, setNewInvendu] = useState({
+    date: new Date().toISOString().split('T')[0],
+    categorie_id: '',
+    produit: '',
+    quantite: 0,
+    valeur_estimee: 0,
+    note: ''
+  });
+
+  // Charger les catégories et les invendus
+  useEffect(() => {
+    if (user) {
+      loadCategories();
+      loadInvendus();
+    }
+  }, [user]);
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories_invendus')
+        .select('*')
+        .eq('actif', true)
+        .order('nom');
+
+      if (error) throw error;
+
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Erreur chargement catégories:', error);
+    }
+  };
+
+  const loadInvendus = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+
+      // Charger les invendus du mois courant uniquement
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+      const { data, error } = await supabase
+        .from('invendus')
+        .select('*')
+        .eq('boucherie_id', user.boucherie_id)
+        .gte('date', firstDay)
+        .lte('date', lastDay)
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      setInvendus(data || []);
+    } catch (error) {
+      console.error('Erreur chargement invendus:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-calcul de la valeur estimée quand catégorie ou quantité change
+  const handleCategorieChange = (categorieId: string) => {
+    const categorie = categories.find(c => c.id === categorieId);
+    const valeurEstimee = categorie ? categorie.prix_moyen * newInvendu.quantite : 0;
+
+    setNewInvendu({
+      ...newInvendu,
+      categorie_id: categorieId,
+      produit: categorie?.nom || '',
+      valeur_estimee: valeurEstimee
+    });
+  };
+
+  const handleQuantiteChange = (quantite: number) => {
+    const categorie = categories.find(c => c.id === newInvendu.categorie_id);
+    const valeurEstimee = categorie ? categorie.prix_moyen * quantite : newInvendu.valeur_estimee;
+
+    setNewInvendu({
+      ...newInvendu,
+      quantite,
+      valeur_estimee: valeurEstimee
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    try {
+      setSaving(true);
+
+      const { error } = await supabase
+        .from('invendus')
+        .insert({
+          boucherie_id: user.boucherie_id,
+          date: newInvendu.date,
+          categorie_id: newInvendu.categorie_id || null,
+          produit: newInvendu.produit,
+          quantite: newInvendu.quantite,
+          valeur_estimee: newInvendu.valeur_estimee,
+          note: newInvendu.note || null
+        });
+
+      if (error) throw error;
+
+      // Réinitialiser le formulaire
+      setNewInvendu({
+        date: new Date().toISOString().split('T')[0],
+        categorie_id: '',
+        produit: '',
+        quantite: 0,
+        valeur_estimee: 0,
+        note: ''
+      });
+
+      // Fermer le formulaire
+      setShowForm(false);
+
+      // Recharger les données
+      await loadInvendus();
+    } catch (error) {
+      console.error('Erreur ajout invendu:', error);
+      alert('Erreur lors de l\'ajout de l\'invendu');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Supprimer cet invendu ?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('invendus')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      await loadInvendus();
+    } catch (error) {
+      console.error('Erreur suppression invendu:', error);
+      alert('Erreur lors de la suppression');
+    }
+  };
+
+  const totalValeur = invendus.reduce((sum, inv) => sum + inv.valeur_estimee, 0);
+
+  // Date max pour le formulaire (aujourd'hui)
+  const maxDate = new Date().toISOString().split('T')[0];
+
+  if (loading) {
+    return <div className="page-invendus">Chargement...</div>;
+  }
+
+  return (
+    <div className="page-invendus">
+      <header className="page-header">
+        <h1>Gestion des Invendus</h1>
+        <button
+          className="btn-add-invendu"
+          onClick={() => setShowForm(!showForm)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {showForm ? (
+              <path d="M18 6L6 18M6 6l12 12"/>
+            ) : (
+              <>
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </>
+            )}
+          </svg>
+          {showForm ? 'Annuler' : 'Créer un invendu'}
+        </button>
+      </header>
+
+      {/* Formulaire d'ajout */}
+      {showForm && (
+        <section className="invendu-form-section">
+          <h2>Ajouter un invendu</h2>
+          <form onSubmit={handleSubmit} className="invendu-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date</label>
+                <input
+                  type="date"
+                  value={newInvendu.date}
+                  onChange={(e) => setNewInvendu({ ...newInvendu, date: e.target.value })}
+                  max={maxDate}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Catégorie</label>
+                <select
+                  value={newInvendu.categorie_id}
+                  onChange={(e) => handleCategorieChange(e.target.value)}
+                  required
+                >
+                  <option value="">Choisir une catégorie</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nom} ({cat.prix_moyen.toFixed(2)} €)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Quantité</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={newInvendu.quantite}
+                  onChange={(e) => handleQuantiteChange(parseFloat(e.target.value) || 0)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Valeur estimée (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={newInvendu.valeur_estimee.toFixed(2)}
+                  readOnly
+                  className="readonly-field"
+                  title="Calcul automatique : Prix moyen × Quantité"
+                />
+              </div>
+              <div className="form-group">
+                <label>Note (optionnel)</label>
+                <textarea
+                  value={newInvendu.note}
+                  onChange={(e) => setNewInvendu({ ...newInvendu, note: e.target.value })}
+                  placeholder="Remarques..."
+                  rows={2}
+                />
+              </div>
+            </div>
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? 'Enregistrement...' : 'Ajouter l\'invendu'}
+            </button>
+          </form>
+        </section>
+      )}
+
+      {/* Liste des invendus */}
+      <section className="invendus-list-section">
+        <div className="section-header">
+          <h2>Invendus du mois</h2>
+          <div className="total-badge">
+            Total: {totalValeur.toFixed(2)} €
+          </div>
+        </div>
+
+        {invendus.length === 0 ? (
+          <div className="empty-state">
+            <p>Aucun invendu enregistré ce mois-ci</p>
+          </div>
+        ) : (
+          <div className="invendus-table">
+            {invendus.map((invendu) => (
+              <div key={invendu.id} className="invendu-card">
+                <div className="invendu-header">
+                  <div className="invendu-date">
+                    {new Date(invendu.date).toLocaleDateString('fr-FR', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short'
+                    })}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(invendu.id)}
+                    className="btn-delete"
+                    title="Supprimer"
+                  >
+                    🗑️
+                  </button>
+                </div>
+                <div className="invendu-body">
+                  <div className="invendu-produit">{invendu.produit}</div>
+                  <div className="invendu-details">
+                    <span className="detail-item">
+                      Quantité: <strong>{invendu.quantite}</strong>
+                    </span>
+                    <span className="detail-item">
+                      Valeur: <strong>{invendu.valeur_estimee.toFixed(2)} €</strong>
+                    </span>
+                  </div>
+                  {invendu.note && (
+                    <div className="invendu-note">
+                      📝 {invendu.note}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}

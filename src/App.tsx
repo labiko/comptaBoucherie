@@ -9,6 +9,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Encaissements } from './pages/Encaissements';
 import { Factures } from './pages/Factures';
 import { Administration } from './pages/Administration';
+import Invendus from './pages/Invendus';
 import './App.css';
 
 import type { ReactElement } from 'react';
@@ -19,7 +20,7 @@ function ProtectedRoute({ children }: { children: ReactElement }) {
 }
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, secteur } = useAuth();
 
   return (
     <Routes>
@@ -71,6 +72,20 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Route conditionnelle : Invendus uniquement pour boulangeries */}
+      {secteur === 'boulangerie' && (
+        <Route
+          path="/invendus"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Invendus />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+      )}
 
       <Route
         path="/historique"

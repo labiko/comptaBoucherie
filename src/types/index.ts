@@ -178,3 +178,25 @@ export interface EnvoiComptabilite {
   user_id: string;
   created_at: string;
 }
+
+export interface CategorieInvendu {
+  id: string;
+  nom: string;
+  prix_moyen: number;
+  actif: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Invendu {
+  id: string;
+  boucherie_id: string;
+  date: string;
+  produit: string;
+  categorie_id: string | null;
+  quantite: number;
+  valeur_estimee: number;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+}

@@ -32,3 +32,4 @@ dump/
 *.njsproj
 *.sln
 *.sw?
+.vercel

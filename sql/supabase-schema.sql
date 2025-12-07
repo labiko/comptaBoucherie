@@ -1,6 +1,14 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.app_config (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  maintenance_mode boolean DEFAULT false,
+  maintenance_message text DEFAULT 'Application en cours de maintenance. Merci de votre patience.'::text,
+  updated_at timestamp with time zone DEFAULT now(),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT app_config_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.boucheries (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   nom text NOT NULL,
@@ -18,6 +26,7 @@ CREATE TABLE public.boucheries (
   envoi_auto_factures boolean NOT NULL DEFAULT false,
   smtp_email text,
   smtp_password text,
+  secteur character varying NOT NULL DEFAULT 'boucherie'::character varying,
   CONSTRAINT boucheries_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.encaissements (
@@ -34,9 +43,9 @@ CREATE TABLE public.encaissements (
   updated_by uuid,
   boucherie_id uuid NOT NULL,
   CONSTRAINT encaissements_pkey PRIMARY KEY (id),
-  CONSTRAINT encaissements_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT encaissements_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id),
   CONSTRAINT encaissements_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id),
-  CONSTRAINT encaissements_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
+  CONSTRAINT encaissements_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.envois_comptabilite (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -74,10 +83,10 @@ CREATE TABLE public.factures (
   piece_jointe text,
   piece_jointe_updated_at timestamp with time zone,
   CONSTRAINT factures_pkey PRIMARY KEY (id),
-  CONSTRAINT factures_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
-  CONSTRAINT factures_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id),
   CONSTRAINT factures_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id),
-  CONSTRAINT factures_fournisseur_id_fkey FOREIGN KEY (fournisseur_id) REFERENCES public.fournisseurs(id)
+  CONSTRAINT factures_fournisseur_id_fkey FOREIGN KEY (fournisseur_id) REFERENCES public.fournisseurs(id),
+  CONSTRAINT factures_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id),
+  CONSTRAINT factures_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.fournisseurs (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -92,6 +101,19 @@ CREATE TABLE public.fournisseurs (
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT fournisseurs_pkey PRIMARY KEY (id),
   CONSTRAINT fournisseurs_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
+);
+CREATE TABLE public.invendus (
+  id integer NOT NULL DEFAULT nextval('invendus_id_seq'::regclass),
+  boucherie_id uuid NOT NULL,
+  date date NOT NULL,
+  produit character varying NOT NULL,
+  quantite numeric,
+  valeur_estimee numeric,
+  note text,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT invendus_pkey PRIMARY KEY (id),
+  CONSTRAINT invendus_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
 );
 CREATE TABLE public.tracabilite (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -120,6 +142,7 @@ CREATE TABLE public.users (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   boucherie_id uuid NOT NULL,
+  is_super_admin boolean DEFAULT false,
   CONSTRAINT users_pkey PRIMARY KEY (id),
   CONSTRAINT users_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
 );

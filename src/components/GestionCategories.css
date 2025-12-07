@@ -1,0 +1,421 @@
+/* Container principal */
+.page-categories {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-categories.loading {
+  text-align: center;
+  padding: 32px;
+  color: #666666;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0;
+}
+
+.btn-add-categorie {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #2D7D4C 0%, #43A047 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(45, 125, 76, 0.3);
+}
+
+.btn-add-categorie svg {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-add-categorie:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(45, 125, 76, 0.4);
+}
+
+/* Formulaire */
+.form-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.form-section h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 20px 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #1A1A1A;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #8B1538;
+}
+
+.form-group input::placeholder {
+  color: #AAAAAA;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-submit {
+  flex: 1;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.btn-cancel-form {
+  padding: 12px 20px;
+  background: #EEEEEE;
+  color: #666666;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel-form:hover {
+  background: #DDDDDD;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 48px 32px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.empty-state p {
+  color: #999999;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Liste des catégories */
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Carte catégorie */
+.categorie-card {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #F0F0F0;
+  overflow: hidden;
+  position: relative;
+}
+
+.categorie-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #2D7D4C 0%, #43A047 100%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.categorie-card:active {
+  transform: scale(0.98);
+}
+
+.categorie-card.inactive-card {
+  background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
+  border-color: rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
+}
+
+.categorie-card.inactive-card::before {
+  background: linear-gradient(180deg, #999999 0%, #BBBBBB 100%);
+}
+
+/* Header de la carte */
+.card-header {
+  padding: 20px 20px 16px 20px;
+  background: linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 100%);
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-nom-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-nom {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1A1A1A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.card-nom svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #2D7D4C;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+  color: #2D7D4C;
+}
+
+.status-badge.inactive {
+  background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
+  color: #999999;
+}
+
+.status-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.card-prix-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.25);
+}
+
+.card-prix-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Détails expandables */
+.card-details {
+  padding: 16px 20px;
+  background: #FAFAFA;
+  border-top: 1px solid #F0F0F0;
+  animation: expand 0.3s ease-out;
+}
+
+@keyframes expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.card-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #EEEEEE;
+}
+
+.card-detail-row:last-of-type {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666666;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.detail-value.active {
+  color: #2D7D4C;
+}
+
+.detail-value.inactive {
+  color: #999999;
+}
+
+.card-edit-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.card-edit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-categories {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header h1 {
+    font-size: 20px;
+  }
+
+  .btn-add-categorie {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .card-header-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-prix-badge {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-categories {
+    padding: 12px;
+  }
+
+  .page-header h1 {
+    font-size: 18px;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .card-header {
+    padding: 16px;
+  }
+
+  .card-details {
+    padding: 12px 16px;
+  }
+}

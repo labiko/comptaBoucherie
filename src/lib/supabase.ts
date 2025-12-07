@@ -10,8 +10,9 @@ import { createClient } from '@supabase/supabase-js';
 //   - Utilise VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
 //   - Chaque projet Vercel a ses propres variables
 
-// Vérifier si on est sur Vercel (variables standard définies)
-const isVercel = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Vérifier si on est vraiment sur Vercel (pas localhost)
+const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const isVercel = !isLocalhost && import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 let supabaseUrl: string;
 let supabaseAnonKey: string;

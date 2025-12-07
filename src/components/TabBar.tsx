@@ -1,28 +1,23 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './TabBar.css';
 
 export function TabBar() {
+  const { activeModules } = useAuth();
+
   return (
     <nav className="tab-bar">
-      <NavLink to="/" end className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">📊</div>
-        <span className="tab-label">Dashboard</span>
-      </NavLink>
-
-      <NavLink to="/encaissements" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">💰</div>
-        <span className="tab-label">Encaissements</span>
-      </NavLink>
-
-      <NavLink to="/factures" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">📄</div>
-        <span className="tab-label">Factures</span>
-      </NavLink>
-
-      <NavLink to="/administration" className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-        <div className="tab-icon">⚙️</div>
-        <span className="tab-label">Administration</span>
-      </NavLink>
+      {activeModules.map((module) => (
+        <NavLink
+          key={module.id}
+          to={module.route}
+          end={module.route === '/'}
+          className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}
+        >
+          <div className="tab-icon">{module.icon}</div>
+          <span className="tab-label">{module.label}</span>
+        </NavLink>
+      ))}
     </nav>
   );
 }
