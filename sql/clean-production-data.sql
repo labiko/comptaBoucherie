@@ -22,21 +22,20 @@
 -- Début de la transaction
 BEGIN;
 
--- 1. Supprimer la traçabilité (dépend des encaissements et factures)
-DELETE FROM tracabilite
-WHERE table_name IN ('encaissements', 'factures');
-
--- 2. Supprimer l'historique des envois comptables
+-- 1. Supprimer l'historique des envois comptables
 DELETE FROM envois_comptabilite;
 
--- 3. Supprimer toutes les factures
+-- 2. Supprimer toutes les factures
 DELETE FROM factures;
 
--- 4. Supprimer tous les encaissements
+-- 3. Supprimer tous les encaissements
 DELETE FROM encaissements;
 
--- 5. Supprimer tous les fournisseurs
+-- 4. Supprimer tous les fournisseurs
 DELETE FROM fournisseurs;
+
+-- 5. Supprimer toute la traçabilité (en dernier pour supprimer aussi les traces des suppressions ci-dessus)
+DELETE FROM tracabilite;
 
 -- 6. Vérification finale - Afficher le compte des enregistrements restants
 SELECT
@@ -44,7 +43,7 @@ SELECT
   (SELECT COUNT(*) FROM encaissements) as nb_encaissements,
   (SELECT COUNT(*) FROM factures) as nb_factures,
   (SELECT COUNT(*) FROM fournisseurs) as nb_fournisseurs,
-  (SELECT COUNT(*) FROM tracabilite WHERE table_name IN ('encaissements', 'factures')) as nb_tracabilite,
+  (SELECT COUNT(*) FROM tracabilite) as nb_tracabilite,
   (SELECT COUNT(*) FROM envois_comptabilite) as nb_envois,
   (SELECT COUNT(*) FROM users) as nb_users_preserves,
   (SELECT COUNT(*) FROM boucheries) as nb_boucheries_preservees;

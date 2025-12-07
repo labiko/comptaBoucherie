@@ -36,11 +36,13 @@ Avant de supprimer quoi que ce soit, exécutez le script de vérification pour v
 5. Copiez le contenu du fichier `sql/verify-before-clean.sql`
 6. Cliquez sur **Run**
 
-### Via CLI Supabase
+### Via PostgreSQL (psql)
 
 ```bash
-npx supabase db execute --file sql/verify-before-clean.sql
+"/c/Program Files/PostgreSQL/17/bin/psql" "postgresql://postgres:VOTRE_PASSWORD@db.ylhwyotluskuhkjumqpf.supabase.co:5432/postgres" -f sql/verify-before-clean.sql
 ```
+
+**Note** : Consultez `CLAUDE_REFERENCE.md` pour les commandes complètes avec credentials.
 
 ### Ce que vous verrez :
 
@@ -67,11 +69,13 @@ Une fois que vous avez vérifié l'état actuel et que vous êtes sûr de vouloi
 5. Copiez le contenu du fichier `sql/clean-production-data.sql`
 6. Cliquez sur **Run**
 
-### Via CLI Supabase
+### Via PostgreSQL (psql)
 
 ```bash
-npx supabase db execute --file sql/clean-production-data.sql
+"/c/Program Files/PostgreSQL/17/bin/psql" "postgresql://postgres:VOTRE_PASSWORD@db.ylhwyotluskuhkjumqpf.supabase.co:5432/postgres" -f sql/clean-production-data.sql
 ```
+
+**Note** : Consultez `CLAUDE_REFERENCE.md` pour les commandes complètes avec credentials.
 
 ### Ce qui se passe :
 

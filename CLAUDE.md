@@ -94,48 +94,28 @@ L'application est structurée autour de 3 onglets principaux :
 - Montants bien visibles et lisibles
 - Pas de scroll horizontal dans les tableaux
 
-### Scripts SQL - Règles et exécution
+### Scripts SQL - Règles de transaction
 
-#### Exécution des scripts SQL
-**Commande à utiliser** pour exécuter un script SQL sur la base de données Supabase :
-```bash
-node scripts/exec-sql.js scripts/nom-du-script.sql
-```
+**IMPORTANT** : Tous les scripts SQL doivent être encapsulés dans une transaction pour garantir l'intégrité des données.
 
-**Exemple concret :**
-```bash
-node scripts/exec-sql.js scripts/add-maintenance-mode.sql
-```
-
-#### Structure des scripts SQL
-**IMPORTANT** : Les scripts SQL doivent suivre certaines règles selon leur complexité.
-
-**Pour des scripts simples** (CREATE TABLE, ALTER TABLE, INSERT) :
+**Structure obligatoire :**
 ```sql
--- Pas besoin de BEGIN/COMMIT pour les scripts simples
-CREATE TABLE IF NOT EXISTS app_config (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  maintenance_mode BOOLEAN DEFAULT false
-);
-
-ALTER TABLE users ADD COLUMN IF NOT EXISTS is_super_admin BOOLEAN DEFAULT false;
-```
-
-**Pour des scripts complexes** (avec logique conditionnelle) :
-```sql
--- Utiliser BEGIN...COMMIT pour les transactions complexes
+-- Début de la transaction
 BEGIN;
 
 -- Vos requêtes SQL ici
 CREATE TABLE ...
-INSERT INTO ...
-UPDATE ...
+CREATE VIEW ...
+ALTER TABLE ...
 
+-- Fin de la transaction - Commit si tout s'est bien passé
 COMMIT;
 ```
 
-**Avantages des transactions :**
+**Avantages :**
 - En cas d'erreur, rollback automatique (aucune modification appliquée)
 - En cas de succès, commit automatique (toutes les modifications appliquées)
 - Garantit la cohérence des données
 - Facilite le débogage
+
+**Pour l'exécution des scripts SQL et autres commandes utiles, consultez** : `CLAUDE_REFERENCE.md`
