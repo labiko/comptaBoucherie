@@ -196,6 +196,46 @@ button:disabled {
   font-weight: 600;
 }
 
+/* Alerte */
+.preview-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.preview-alert.warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+}
+
+.preview-alert svg {
+  width: 24px;
+  height: 24px;
+  color: #856404;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-content strong {
+  display: block;
+  color: #856404;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.alert-dates {
+  font-size: 0.85rem;
+  color: #856404;
+  line-height: 1.5;
+}
+
 /* Récapitulatif des totaux */
 .totaux-recap {
   display: grid;
@@ -255,6 +295,53 @@ button:disabled {
   font-size: 1.5rem;
   font-weight: 700;
   color: #2c3e50;
+}
+
+.recap-warning {
+  margin-top: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #856404;
+  text-align: center;
+  border: 1px solid #ffc107;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.15);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Badge de score de complétude */
+.recap-score {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.recap-score.score-green {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  color: white;
+}
+
+.recap-score.score-orange {
+  background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+  color: white;
+}
+
+.recap-score.score-red {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
 }
 
 /* Cartes de prévisualisation */

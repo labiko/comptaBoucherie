@@ -423,7 +423,35 @@ export function Comptabilite() {
                     <div className="recap-label">Factures</div>
                     <div className="recap-count">{factures.length} facture(s)</div>
                     <div className="recap-montant">{factures.reduce((sum, f) => sum + f.montant, 0).toFixed(2)} €</div>
+                    {(() => {
+                      const facturesSansPJ = factures.filter(f => !f.piece_jointe).length;
+                      if (facturesSansPJ > 0) {
+                        return (
+                          <div className="recap-warning">
+                            ⚠️ {facturesSansPJ} facture(s) sans pièce jointe
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
+                  {(() => {
+                    const totalFactures = factures.length;
+                    if (totalFactures === 0) return null;
+
+                    const facturesAvecPJ = factures.filter(f => f.piece_jointe).length;
+                    const score = Math.round((facturesAvecPJ / totalFactures) * 100);
+
+                    let scoreClass = 'score-red';
+                    if (score >= 80) scoreClass = 'score-green';
+                    else if (score >= 50) scoreClass = 'score-orange';
+
+                    return (
+                      <div className={`recap-score ${scoreClass}`}>
+                        {score}%
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="recap-card encaissements">
@@ -432,7 +460,42 @@ export function Comptabilite() {
                     <div className="recap-label">Encaissements</div>
                     <div className="recap-count">{encaissements.length} jour(s)</div>
                     <div className="recap-montant">{encaissements.reduce((sum, e) => sum + e.total, 0).toFixed(2)} €</div>
+                    {(() => {
+                      // Calculer les jours manquants
+                      const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
+                      const endDate = new Date(selectedAnnee, selectedMois, 0);
+                      const totalDaysInMonth = endDate.getDate();
+                      const joursSansEncaissement = totalDaysInMonth - encaissements.length;
+
+                      if (joursSansEncaissement > 0) {
+                        return (
+                          <div className="recap-warning">
+                            ⚠️ {joursSansEncaissement} jour(s) sans encaissement
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
+                  {(() => {
+                    const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
+                    const endDate = new Date(selectedAnnee, selectedMois, 0);
+                    const totalDaysInMonth = endDate.getDate();
+
+                    if (totalDaysInMonth === 0) return null;
+
+                    const score = Math.round((encaissements.length / totalDaysInMonth) * 100);
+
+                    let scoreClass = 'score-red';
+                    if (score >= 80) scoreClass = 'score-green';
+                    else if (score >= 50) scoreClass = 'score-orange';
+
+                    return (
+                      <div className={`recap-score ${scoreClass}`}>
+                        {score}%
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -440,6 +503,30 @@ export function Comptabilite() {
               {factures.length > 0 && (
                 <>
                   <h4 className="preview-subtitle">📄 Détail des factures</h4>
+
+                  {/* Alerte factures sans pièce jointe */}
+                  {(() => {
+                    const facturesSansPJ = factures.filter(f => !f.piece_jointe);
+                    if (facturesSansPJ.length > 0) {
+                      return (
+                        <div className="preview-alert warning">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                          </svg>
+                          <div className="alert-content">
+                            <strong>{facturesSansPJ.length} facture(s) sans pièce jointe</strong>
+                            <div className="alert-dates">
+                              {facturesSansPJ.map(f => format(new Date(f.date_facture), 'dd/MM/yyyy')).join(', ')}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+
                   <div className="preview-cards-container">
                     {factures.slice(0, 5).map(facture => (
                       <div key={facture.id} className="preview-card">
@@ -468,6 +555,49 @@ export function Comptabilite() {
               {encaissements.length > 0 && (
                 <>
                   <h4 className="preview-subtitle">💰 Détail des encaissements</h4>
+
+                  {/* Alerte jours sans encaissement */}
+                  {(() => {
+                    // Calculer tous les jours du mois
+                    const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
+                    const endDate = new Date(selectedAnnee, selectedMois, 0);
+                    const totalDaysInMonth = endDate.getDate();
+
+                    // Récupérer les jours avec encaissement
+                    const joursAvecEncaissement = new Set(
+                      encaissements.map(e => new Date(e.date).getDate())
+                    );
+
+                    // Trouver les jours sans encaissement
+                    const joursSansEncaissement: number[] = [];
+                    for (let jour = 1; jour <= totalDaysInMonth; jour++) {
+                      if (!joursAvecEncaissement.has(jour)) {
+                        joursSansEncaissement.push(jour);
+                      }
+                    }
+
+                    if (joursSansEncaissement.length > 0) {
+                      return (
+                        <div className="preview-alert warning">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                          </svg>
+                          <div className="alert-content">
+                            <strong>{joursSansEncaissement.length} jour(s) sans encaissement</strong>
+                            <div className="alert-dates">
+                              {joursSansEncaissement.map(jour =>
+                                format(new Date(selectedAnnee, selectedMois - 1, jour), 'dd/MM/yyyy')
+                              ).join(', ')}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+
                   <div className="preview-cards-container">
                     {encaissements.slice(0, 5).map(enc => (
                       <div key={enc.id} className="preview-card">
