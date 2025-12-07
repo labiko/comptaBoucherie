@@ -462,7 +462,6 @@ export function Comptabilite() {
                     <div className="recap-montant">{encaissements.reduce((sum, e) => sum + e.total, 0).toFixed(2)} €</div>
                     {(() => {
                       // Calculer les jours manquants
-                      const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
                       const endDate = new Date(selectedAnnee, selectedMois, 0);
                       const totalDaysInMonth = endDate.getDate();
                       const joursSansEncaissement = totalDaysInMonth - encaissements.length;
@@ -478,7 +477,6 @@ export function Comptabilite() {
                     })()}
                   </div>
                   {(() => {
-                    const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
                     const endDate = new Date(selectedAnnee, selectedMois, 0);
                     const totalDaysInMonth = endDate.getDate();
 
@@ -559,7 +557,6 @@ export function Comptabilite() {
                   {/* Alerte jours sans encaissement */}
                   {(() => {
                     // Calculer tous les jours du mois
-                    const startDate = new Date(selectedAnnee, selectedMois - 1, 1);
                     const endDate = new Date(selectedAnnee, selectedMois, 0);
                     const totalDaysInMonth = endDate.getDate();
 
