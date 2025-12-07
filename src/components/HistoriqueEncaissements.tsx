@@ -73,6 +73,7 @@ export function HistoriqueEncaissements() {
         .eq('boucherie_id', user.boucherie_id)
         .gte('date', startDate)
         .lte('date', endDate)
+        .order('created_at', { ascending: false })
         .order('date', { ascending: false });
 
       if (error) throw error;

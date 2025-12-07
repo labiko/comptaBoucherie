@@ -100,7 +100,9 @@ export function HistoriqueFactures() {
         query = query.eq('fournisseur_id', selectedFournisseur);
       }
 
-      const { data, error } = await query.order('date_facture', { ascending: false });
+      const { data, error } = await query
+        .order('created_at', { ascending: false })
+        .order('date_facture', { ascending: false });
 
       if (error) throw error;
       setFactures(data || []);

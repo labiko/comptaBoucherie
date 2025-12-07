@@ -223,14 +223,14 @@ export function Factures() {
       const monthStart = format(startOfMonth(selectedMonth), 'yyyy-MM-dd');
       const monthEnd = format(endOfMonth(selectedMonth), 'yyyy-MM-dd');
 
-      const { data, error } = await supabase
+      const { data, error} = await supabase
         .from('factures')
         .select('*')
         .eq('boucherie_id', user.boucherie_id)
         .gte('date_facture', monthStart)
         .lte('date_facture', monthEnd)
-        .order('date_facture', { ascending: false })
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .order('date_facture', { ascending: false });
 
       if (error) throw error;
       console.log('📊 loadFactures - Données chargées:', data?.length, 'factures');

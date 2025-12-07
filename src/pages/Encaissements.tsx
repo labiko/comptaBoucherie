@@ -170,8 +170,11 @@ export function Encaissements() {
 
     try {
       setLoading(true);
-      const monthStart = format(startOfMonth(today), 'yyyy-MM-dd');
-      const monthEnd = format(endOfMonth(today), 'yyyy-MM-dd');
+      const now = new Date();
+      const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
+      const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
+
+      console.log('🔍 loadEncaissements - Filtre du mois:', monthStart, 'au', monthEnd);
 
       const { data, error } = await supabase
         .from('encaissements')
@@ -179,10 +182,11 @@ export function Encaissements() {
         .eq('boucherie_id', user.boucherie_id)
         .gte('date', monthStart)
         .lte('date', monthEnd)
-        .order('date', { ascending: false })
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .order('date', { ascending: false });
 
       if (error) throw error;
+      console.log('📊 loadEncaissements - Données chargées:', data?.length, 'encaissements');
       setEncaissements(data || []);
 
       // Charger les données du jour si elles existent
@@ -205,10 +209,18 @@ export function Encaissements() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || isSubmitting) return;
+    console.log('🚀 handleSubmit - Début');
+
+    if (!user || isSubmitting) {
+      console.log('❌ handleSubmit - Bloqué: user=', !!user, 'isSubmitting=', isSubmitting);
+      return;
+    }
+
+    console.log('📝 handleSubmit - formData:', formData);
 
     // Validation : tous les champs sont obligatoires
     if (!formData.espece || !formData.cb || !formData.ch_vr || !formData.tr) {
+      console.log('❌ handleSubmit - Validation échouée: champs manquants');
       showError('Tous les champs sont obligatoires. Veuillez saisir un montant pour chaque type de paiement (même 0).');
       return;
     }
@@ -218,26 +230,32 @@ export function Encaissements() {
     const ch_vr = parseFloat(formData.ch_vr);
     const tr = parseFloat(formData.tr);
 
+    console.log('💰 handleSubmit - Montants parsés:', { espece, cb, ch_vr, tr });
+
     // Vérifier que tous les montants sont valides
     if (isNaN(espece) || isNaN(cb) || isNaN(ch_vr) || isNaN(tr)) {
+      console.log('❌ handleSubmit - Montants invalides');
       showError('Veuillez saisir des montants valides');
       return;
     }
 
     // Vérifier que tous les montants sont positifs ou nuls
     if (espece < 0 || cb < 0 || ch_vr < 0 || tr < 0) {
+      console.log('❌ handleSubmit - Montants négatifs');
       showError('Les montants ne peuvent pas être négatifs');
       return;
     }
 
     // Déterminer la date à utiliser
     const dateToUse = useCustomDate ? formData.date : todayStr;
+    console.log('📅 handleSubmit - Date à utiliser:', dateToUse, '(useCustomDate=', useCustomDate, ')');
 
     setIsSubmitting(true);
 
     try {
       // Si on est en mode édition
       if (editingId) {
+        console.log('✏️ handleSubmit - Mode édition, ID:', editingId);
         const { error } = await supabase
           .from('encaissements')
           .update({
@@ -250,43 +268,46 @@ export function Encaissements() {
           })
           .eq('id', editingId);
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ handleSubmit - Erreur UPDATE:', error);
+          throw error;
+        }
+        console.log('✅ handleSubmit - UPDATE réussi');
         setEditingId(null);
       } else {
-        // Vérifier s'il existe déjà un encaissement pour cette date
-        const existingEncaissement = encaissements.find((e) => e.date === dateToUse);
+        // Toujours créer un nouvel encaissement (pas de vérification de doublon)
+        console.log('➕ handleSubmit - Création d\'un nouvel encaissement');
+        console.log('   Données à insérer:', {
+          boucherie_id: user.boucherie_id,
+          date: dateToUse,
+          espece,
+          cb,
+          ch_vr,
+          tr,
+          user_id: user.id,
+          updated_by: user.id,
+        });
 
-        if (existingEncaissement) {
-          // Mettre à jour l'encaissement existant
-          const { error } = await supabase
-            .from('encaissements')
-            .update({
-              espece,
-              cb,
-              ch_vr,
-              tr,
-              updated_by: user.id,
-            })
-            .eq('id', existingEncaissement.id);
+        // Créer un nouvel encaissement
+        const { data, error } = await supabase
+          .from('encaissements')
+          .insert({
+            boucherie_id: user.boucherie_id,
+            date: dateToUse,
+            espece,
+            cb,
+            ch_vr,
+            tr,
+            user_id: user.id,
+            updated_by: user.id,
+          })
+          .select();
 
-          if (error) throw error;
-        } else {
-          // Créer un nouvel encaissement
-          const { error } = await supabase
-            .from('encaissements')
-            .insert({
-              boucherie_id: user.boucherie_id,
-              date: dateToUse,
-              espece,
-              cb,
-              ch_vr,
-              tr,
-              user_id: user.id,
-              updated_by: user.id,
-            });
-
-          if (error) throw error;
+        if (error) {
+          console.error('❌ handleSubmit - Erreur INSERT:', error);
+          throw error;
         }
+        console.log('✅ handleSubmit - INSERT réussi, données:', data);
       }
 
       // Sauvegarder l'ID avant de réinitialiser
