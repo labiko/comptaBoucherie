@@ -39,7 +39,6 @@ export function Dashboard() {
       console.log('VITE_DEV_SUPABASE_URL:', import.meta.env.VITE_DEV_SUPABASE_URL);
       console.log('VITE_PROD_SUPABASE_URL:', import.meta.env.VITE_PROD_SUPABASE_URL);
       console.log('VITE_SUPABASE_URL (Vercel):', import.meta.env.VITE_SUPABASE_URL);
-      console.log('Supabase URL utilisée:', supabase.supabaseUrl);
       console.log('=====================================');
 
       // Charger les stats globales
