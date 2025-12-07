@@ -13,6 +13,7 @@ export function Dashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [weekData, setWeekData] = useState<WeekData[]>([]);
+  const [previousWeekData, setPreviousWeekData] = useState<WeekData[]>([]);
   const [facturesRetard, setFacturesRetard] = useState<FactureRetard[]>([]);
   const [topFournisseurs, setTopFournisseurs] = useState<FournisseurImpaye[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,61 @@ export function Dashboard() {
 
       if (weekError) throw weekError;
       setWeekData(weekDataRes || []);
+
+      // Charger les données de la semaine précédente
+      // Calculer les dates de la semaine précédente
+      const today = new Date();
+      const currentDayOfWeek = today.getDay(); // 0 = Dimanche, 1 = Lundi, ...
+      const daysToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+
+      // Date de lundi de cette semaine
+      const thisMonday = new Date(today);
+      thisMonday.setDate(today.getDate() - daysToMonday);
+      thisMonday.setHours(0, 0, 0, 0);
+
+      // Date de lundi de la semaine précédente
+      const lastMonday = new Date(thisMonday);
+      lastMonday.setDate(thisMonday.getDate() - 7);
+
+      // Date de dimanche de la semaine précédente
+      const lastSunday = new Date(lastMonday);
+      lastSunday.setDate(lastMonday.getDate() + 6);
+      lastSunday.setHours(23, 59, 59, 999);
+
+      const { data: previousWeekDataRes, error: previousWeekError } = await supabase
+        .from('encaissements')
+        .select('date, espece, cb, ch_vr, tr')
+        .eq('boucherie_id', user.boucherie_id)
+        .gte('date', lastMonday.toISOString().split('T')[0])
+        .lte('date', lastSunday.toISOString().split('T')[0])
+        .order('date', { ascending: true });
+
+      if (previousWeekError) throw previousWeekError;
+
+      // Grouper et formater les données de la semaine précédente
+      const previousWeekFormatted = (previousWeekDataRes || []).reduce((acc: any[], enc: any) => {
+        const existing = acc.find(item => item.date === enc.date);
+        const total = enc.espece + enc.cb + enc.ch_vr + enc.tr;
+
+        if (existing) {
+          existing.total += total;
+        } else {
+          const encDate = new Date(enc.date + 'T00:00:00');
+          const dayOfWeek = encDate.getDay();
+          const daysShort = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+          acc.push({
+            boucherie_id: user.boucherie_id,
+            date: enc.date,
+            jour_court: daysShort[dayOfWeek],
+            date_format: encDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+            total: total
+          });
+        }
+        return acc;
+      }, []);
+
+      setPreviousWeekData(previousWeekFormatted);
 
       // Charger les factures en retard
       const { data: retardData, error: retardError } = await supabase
@@ -144,7 +200,7 @@ export function Dashboard() {
             </svg>
           }
         >
-          <WeekChart data={weekData} />
+          <WeekChart data={weekData} previousWeekData={previousWeekData} />
         </DashboardCard>
 
         {/* Alertes factures */}
