@@ -72,7 +72,12 @@
       "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\":*)",
       "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ylhwyotluskuhkjumqpf.supabase.co:5432/postgres\" -c \"SELECT has_schema_privilege(''anon'', ''public'', ''USAGE'') as anon_schema_ok, has_function_privilege(''anon'', ''public.verify_password(text, text)'', ''EXECUTE'') as anon_fonction_ok, verify_password(''nacer'', ''nacer123'') as connexion_nacer_ok;\")",
       "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ylhwyotluskuhkjumqpf.supabase.co:5432/postgres\" -c \"SELECT COUNT(*) as nb_total_tracabilite FROM tracabilite;\")",
-      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ylhwyotluskuhkjumqpf.supabase.co:5432/postgres\" -c \"SELECT table_name, COUNT(*) as nb FROM tracabilite GROUP BY table_name ORDER BY nb DESC;\")"
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ylhwyotluskuhkjumqpf.supabase.co:5432/postgres\" -c \"SELECT table_name, COUNT(*) as nb FROM tracabilite GROUP BY table_name ORDER BY nb DESC;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ghqeiknovctwqpucoeuv.supabase.co:5432/postgres\" -f \"dump/dump_boucherie_data_for_test_avec_permissions_07-12-2025.sql\")",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ghqeiknovctwqpucoeuv.supabase.co:5432/postgres\" -c \"SELECT COUNT(*) as nb_users FROM users; SELECT COUNT(*) as nb_encaissements FROM encaissements; SELECT COUNT(*) as nb_factures FROM factures; SELECT COUNT(*) as nb_fournisseurs FROM fournisseurs; SELECT COUNT(*) as nb_boucheries FROM boucheries;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ghqeiknovctwqpucoeuv.supabase.co:5432/postgres\" -c \"SELECT id, login, nom, prenom, actif, is_super_admin FROM users ORDER BY created_at;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ghqeiknovctwqpucoeuv.supabase.co:5432/postgres\" -c \"SELECT verify_password(''admin'', ''admin'') as connexion_admin, verify_password(''nacer'', ''nacer123'') as connexion_nacer, verify_password(''hany'', ''hany123'') as connexion_hany;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" \"postgresql://postgres:p4zN25F7Gfw9Py@db.ghqeiknovctwqpucoeuv.supabase.co:5432/postgres\" -c \"SELECT verify_password(''admin'', ''admin123'') as test_admin123, verify_password(''admin'', ''Admin123'') as test_Admin123;\")"
     ],
     "deny": [],
     "ask": []

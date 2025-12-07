@@ -33,6 +33,15 @@ export function Dashboard() {
     try {
       setLoading(true);
 
+      // DEBUG: Logs pour vérifier l'environnement
+      console.log('========== DEBUG DASHBOARD ==========');
+      console.log('VITE_NODE_ENV:', import.meta.env.VITE_NODE_ENV);
+      console.log('VITE_DEV_SUPABASE_URL:', import.meta.env.VITE_DEV_SUPABASE_URL);
+      console.log('VITE_PROD_SUPABASE_URL:', import.meta.env.VITE_PROD_SUPABASE_URL);
+      console.log('VITE_SUPABASE_URL (Vercel):', import.meta.env.VITE_SUPABASE_URL);
+      console.log('Supabase URL utilisée:', supabase.supabaseUrl);
+      console.log('=====================================');
+
       // Charger les stats globales
       const { data: statsData, error: statsError } = await supabase
         .from('v_dashboard_stats')
@@ -41,6 +50,7 @@ export function Dashboard() {
         .single();
 
       if (statsError) throw statsError;
+      console.log('📊 Stats chargées:', statsData);
       setStats(statsData);
 
       // Charger les données de la semaine
