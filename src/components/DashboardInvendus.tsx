@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { formatMontantAvecDevise } from '../lib/format';
 import { useNavigate } from 'react-router-dom';
 import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
-import type { CategorieInvendu } from '../types';
 import './DashboardInvendus.css';
 
 interface InvenduStats {
