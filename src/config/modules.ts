@@ -16,7 +16,7 @@ export const MODULES_BY_SECTEUR: Record<Secteur, ModuleConfig[]> = {
     { id: 'dashboard', label: 'Dashboard', icon: '📊', route: '/', enabled: true },
     { id: 'encaissements', label: 'Encaissements', icon: '💰', route: '/encaissements', enabled: true },
     { id: 'factures', label: 'Factures', icon: '📄', route: '/factures', enabled: true },
-    { id: 'administration', label: 'Administration', icon: '⚙️', route: '/administration', enabled: true },
+    { id: 'administration', label: 'Admin', icon: '⚙️', route: '/administration', enabled: true },
     { id: 'invendus', label: 'Invendus', icon: '🥖', route: '/invendus', enabled: false }, // Désactivé pour boucheries
   ],
   boulangerie: [
@@ -24,7 +24,7 @@ export const MODULES_BY_SECTEUR: Record<Secteur, ModuleConfig[]> = {
     { id: 'encaissements', label: 'Encaissements', icon: '💰', route: '/encaissements', enabled: true },
     { id: 'factures', label: 'Factures', icon: '📄', route: '/factures', enabled: true },
     { id: 'invendus', label: 'Invendus', icon: '🥖', route: '/invendus', enabled: true }, // Activé pour boulangeries
-    { id: 'administration', label: 'Administration', icon: '⚙️', route: '/administration', enabled: true },
+    { id: 'administration', label: 'Admin', icon: '⚙️', route: '/administration', enabled: true },
   ],
 };
 
