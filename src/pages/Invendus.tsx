@@ -4,7 +4,100 @@ import { supabase } from '../lib/supabase';
 import type { CategorieInvendu, Invendu } from '../types';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { ConfirmModal } from '../components/ConfirmModal';
 import './Invendus.css';
+
+interface InvenduCardProps {
+  invendu: Invendu;
+  onEdit: (invendu: Invendu) => void;
+  onDelete: (id: string) => void;
+}
+
+function InvenduCard({ invendu, onEdit, onDelete }: InvenduCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="invendu-card" onClick={() => setIsExpanded(!isExpanded)}>
+      <div className="invendu-header">
+        <div className="invendu-date">
+          {new Date(invendu.date).toLocaleDateString('fr-FR', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short'
+          })}
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(invendu.id);
+          }}
+          className="btn-delete"
+          title="Supprimer"
+        >
+          🗑️
+        </button>
+      </div>
+      <div className="invendu-body">
+        <div className="invendu-produit">{invendu.produit}</div>
+        <div className="invendu-details">
+          <span className="detail-item">
+            Quantité: <strong>{invendu.quantite}</strong>
+          </span>
+          <span className="detail-item">
+            Valeur: <strong>{invendu.valeur_estimee.toFixed(2)} €</strong>
+          </span>
+        </div>
+        {invendu.note && (
+          <div className="invendu-note">
+            📝 {invendu.note}
+          </div>
+        )}
+      </div>
+
+      {isExpanded && (
+        <div className="card-details" onClick={(e) => e.stopPropagation()}>
+          <div className="card-detail-row">
+            <span className="detail-label">Produit:</span>
+            <span className="detail-value">{invendu.produit}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">Quantité:</span>
+            <span className="detail-value">{invendu.quantite}</span>
+          </div>
+          <div className="card-detail-row">
+            <span className="detail-label">Valeur estimée:</span>
+            <span className="detail-value">{invendu.valeur_estimee.toFixed(2)} €</span>
+          </div>
+          {invendu.note && (
+            <div className="card-detail-row">
+              <span className="detail-label">Note:</span>
+              <span className="detail-value">{invendu.note}</span>
+            </div>
+          )}
+          <button
+            className="card-edit-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(invendu);
+            }}
+          >
+            ✏️ Modifier
+          </button>
+        </div>
+      )}
+
+      <div className="invendu-footer">
+        <div className="created-at">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          Créé le {format(parseISO(invendu.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Invendus() {
   const { user } = useAuth();
@@ -13,8 +106,13 @@ export default function Invendus() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [existingInvendu, setExistingInvendu] = useState<Invendu | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [invenduToDelete, setInvenduToDelete] = useState<string | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Formulaire pour nouvel invendu
   const [newInvendu, setNewInvendu] = useState({
@@ -110,39 +208,57 @@ export default function Invendus() {
     try {
       setSaving(true);
 
-      // Vérifier si un invendu existe déjà pour cette date + catégorie
-      const { data: existing, error: checkError } = await supabase
-        .from('invendus')
-        .select('*')
-        .eq('boucherie_id', user.boucherie_id)
-        .eq('date', newInvendu.date)
-        .eq('categorie_id', newInvendu.categorie_id)
-        .maybeSingle();
+      // Si on est en mode édition
+      if (editingId) {
+        const { error } = await supabase
+          .from('invendus')
+          .update({
+            date: newInvendu.date,
+            categorie_id: newInvendu.categorie_id || null,
+            produit: newInvendu.produit,
+            quantite: newInvendu.quantite,
+            valeur_estimee: newInvendu.valeur_estimee,
+            note: newInvendu.note || null
+          })
+          .eq('id', editingId);
 
-      if (checkError) throw checkError;
+        if (error) throw error;
+        setEditingId(null);
+      } else {
+        // Mode création - Vérifier si un invendu existe déjà pour cette date + catégorie
+        const { data: existing, error: checkError } = await supabase
+          .from('invendus')
+          .select('*')
+          .eq('boucherie_id', user.boucherie_id)
+          .eq('date', newInvendu.date)
+          .eq('categorie_id', newInvendu.categorie_id)
+          .maybeSingle();
 
-      // Si un invendu existe déjà, afficher le modal de choix
-      if (existing) {
-        setExistingInvendu(existing);
-        setShowDuplicateModal(true);
-        setSaving(false);
-        return;
+        if (checkError) throw checkError;
+
+        // Si un invendu existe déjà, afficher le modal de choix
+        if (existing) {
+          setExistingInvendu(existing);
+          setShowDuplicateModal(true);
+          setSaving(false);
+          return;
+        }
+
+        // Sinon, créer normalement
+        const { error } = await supabase
+          .from('invendus')
+          .insert({
+            boucherie_id: user.boucherie_id,
+            date: newInvendu.date,
+            categorie_id: newInvendu.categorie_id || null,
+            produit: newInvendu.produit,
+            quantite: newInvendu.quantite,
+            valeur_estimee: newInvendu.valeur_estimee,
+            note: newInvendu.note || null
+          });
+
+        if (error) throw error;
       }
-
-      // Sinon, créer normalement
-      const { error } = await supabase
-        .from('invendus')
-        .insert({
-          boucherie_id: user.boucherie_id,
-          date: newInvendu.date,
-          categorie_id: newInvendu.categorie_id || null,
-          produit: newInvendu.produit,
-          quantite: newInvendu.quantite,
-          valeur_estimee: newInvendu.valeur_estimee,
-          note: newInvendu.note || null
-        });
-
-      if (error) throw error;
 
       // Réinitialiser le formulaire
       setNewInvendu({
@@ -161,7 +277,8 @@ export default function Invendus() {
       await loadInvendus();
     } catch (error) {
       console.error('Erreur ajout invendu:', error);
-      alert('Erreur lors de l\'ajout de l\'invendu');
+      setErrorMessage(editingId ? 'Erreur lors de la mise à jour' : 'Erreur lors de l\'ajout de l\'invendu');
+      setShowErrorModal(true);
     } finally {
       setSaving(false);
     }
@@ -202,7 +319,8 @@ export default function Invendus() {
       await loadInvendus();
     } catch (error) {
       console.error('Erreur remplacement invendu:', error);
-      alert('Erreur lors du remplacement');
+      setErrorMessage('Erreur lors du remplacement');
+      setShowErrorModal(true);
     } finally {
       setSaving(false);
     }
@@ -214,22 +332,71 @@ export default function Invendus() {
     setExistingInvendu(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer cet invendu ?')) return;
+  const handleEdit = (invendu: Invendu) => {
+    setEditingId(invendu.id);
+    setShowForm(true);
+    setNewInvendu({
+      date: invendu.date,
+      categorie_id: invendu.categorie_id || '',
+      produit: invendu.produit,
+      quantite: invendu.quantite,
+      valeur_estimee: invendu.valeur_estimee,
+      note: invendu.note || ''
+    });
+
+    // Scroll vers le formulaire pour le voir
+    setTimeout(() => {
+      const formElement = document.querySelector('.invendu-form-section');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setShowForm(false);
+    setNewInvendu({
+      date: new Date().toISOString().split('T')[0],
+      categorie_id: '',
+      produit: '',
+      quantite: 0,
+      valeur_estimee: 0,
+      note: ''
+    });
+  };
+
+  const handleDelete = (id: string) => {
+    setInvenduToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!invenduToDelete) return;
 
     try {
       const { error } = await supabase
         .from('invendus')
         .delete()
-        .eq('id', id);
+        .eq('id', invenduToDelete);
 
       if (error) throw error;
 
+      setShowDeleteModal(false);
+      setInvenduToDelete(null);
       await loadInvendus();
     } catch (error) {
       console.error('Erreur suppression invendu:', error);
-      alert('Erreur lors de la suppression');
+      setShowDeleteModal(false);
+      setInvenduToDelete(null);
+      setErrorMessage('Erreur lors de la suppression');
+      setShowErrorModal(true);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setInvenduToDelete(null);
   };
 
   const totalValeur = invendus.reduce((sum, inv) => sum + inv.valeur_estimee, 0);
@@ -267,7 +434,14 @@ export default function Invendus() {
       {/* Formulaire d'ajout */}
       {showForm && (
         <section className="invendu-form-section">
-          <h2>Ajouter un invendu</h2>
+          <div className="form-header-row">
+            <h2>{editingId ? 'Modifier l\'invendu' : 'Ajouter un invendu'}</h2>
+            {editingId && (
+              <button type="button" onClick={handleCancelEdit} className="btn-cancel-edit">
+                Annuler
+              </button>
+            )}
+          </div>
           <form onSubmit={handleSubmit} className="invendu-form">
             <div className="form-row">
               <div className="form-group">
@@ -285,6 +459,8 @@ export default function Invendus() {
                 <select
                   value={newInvendu.categorie_id}
                   onChange={(e) => handleCategorieChange(e.target.value)}
+                  disabled={!!editingId}
+                  className={editingId ? 'readonly-field' : ''}
                   required
                 >
                   <option value="">Choisir une catégorie</option>
@@ -327,7 +503,7 @@ export default function Invendus() {
               </div>
             </div>
             <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? 'Enregistrement...' : 'Ajouter l\'invendu'}
+              {saving ? 'Enregistrement...' : (editingId ? 'Mettre à jour' : 'Ajouter l\'invendu')}
             </button>
           </form>
         </section>
@@ -349,49 +525,12 @@ export default function Invendus() {
         ) : (
           <div className="invendus-table">
             {invendus.map((invendu) => (
-              <div key={invendu.id} className="invendu-card">
-                <div className="invendu-header">
-                  <div className="invendu-date">
-                    {new Date(invendu.date).toLocaleDateString('fr-FR', {
-                      weekday: 'short',
-                      day: 'numeric',
-                      month: 'short'
-                    })}
-                  </div>
-                  <button
-                    onClick={() => handleDelete(invendu.id)}
-                    className="btn-delete"
-                    title="Supprimer"
-                  >
-                    🗑️
-                  </button>
-                </div>
-                <div className="invendu-body">
-                  <div className="invendu-produit">{invendu.produit}</div>
-                  <div className="invendu-details">
-                    <span className="detail-item">
-                      Quantité: <strong>{invendu.quantite}</strong>
-                    </span>
-                    <span className="detail-item">
-                      Valeur: <strong>{invendu.valeur_estimee.toFixed(2)} €</strong>
-                    </span>
-                  </div>
-                  {invendu.note && (
-                    <div className="invendu-note">
-                      📝 {invendu.note}
-                    </div>
-                  )}
-                </div>
-                <div className="invendu-footer">
-                  <div className="created-at">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M12 6v6l4 2"/>
-                    </svg>
-                    Créé le {format(parseISO(invendu.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
-                  </div>
-                </div>
-              </div>
+              <InvenduCard
+                key={invendu.id}
+                invendu={invendu}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}
@@ -438,6 +577,29 @@ export default function Invendus() {
           </div>
         </div>
       )}
+
+      {/* Modal de confirmation de suppression */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Confirmer la suppression"
+        message="Voulez-vous vraiment supprimer cet invendu ?"
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        confirmVariant="danger"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+
+      {/* Modal d'erreur */}
+      <ConfirmModal
+        isOpen={showErrorModal}
+        title="Erreur"
+        message={errorMessage}
+        confirmText="OK"
+        confirmVariant="primary"
+        onConfirm={() => setShowErrorModal(false)}
+        onCancel={() => setShowErrorModal(false)}
+      />
     </div>
   );
 }

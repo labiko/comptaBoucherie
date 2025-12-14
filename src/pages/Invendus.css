@@ -62,10 +62,33 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.form-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
 .invendu-form-section h2 {
   font-size: 1.2rem;
-  margin: 0 0 1.5rem 0;
+  margin: 0;
   color: #2c3e50;
+}
+
+.btn-cancel-edit {
+  padding: 0.5rem 1rem;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel-edit:hover {
+  background: #7f8c8d;
 }
 
 .invendu-form {
@@ -232,11 +255,64 @@
   border-radius: 12px;
   padding: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .invendu-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Détails expandables de la carte */
+.card-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.card-edit-btn {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.card-edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
 }
 
 .invendu-header {
