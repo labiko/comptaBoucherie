@@ -1,0 +1,211 @@
+.dashboard-invendus-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.card-header h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #95a5a6;
+}
+
+/* Section total */
+.total-section {
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+}
+
+.total-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  opacity: 0.95;
+}
+
+.total-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Section catégories */
+.categories-section {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.categories-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.category-group {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.category-group:not(:last-child) {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.category-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.category-name {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.category-dots {
+  border-bottom: 2px dotted #bdc3c7;
+  flex: 1;
+}
+
+.category-value {
+  color: #2c3e50;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.category-row-last-week {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0.25rem 0 0.25rem 1rem;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.last-week-label {
+  color: #7f8c8d;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.last-week-value {
+  color: #7f8c8d;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.last-week-value.positive {
+  color: #27ae60;
+}
+
+.last-week-value.negative {
+  color: #e74c3c;
+}
+
+.last-week-value.neutral {
+  color: #95a5a6;
+}
+
+.evolution-indicator {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Section évolution */
+.evolution-section {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.evolution-section h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.evolution-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.evolution-value.positive {
+  color: #27ae60;
+}
+
+.evolution-value.negative {
+  color: #e74c3c;
+}
+
+.evolution-value.neutral {
+  color: #95a5a6;
+}
+
+/* Bouton détails */
+.btn-details {
+  background: linear-gradient(135deg, #8B1538 0%, #B01D47 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(139, 21, 56, 0.3);
+  text-align: center;
+  width: 100%;
+}
+
+.btn-details:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(139, 21, 56, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-invendus-card {
+    padding: 1.25rem;
+  }
+
+  .total-value {
+    font-size: 1.75rem;
+  }
+
+  .category-row {
+    font-size: 0.9rem;
+  }
+
+  .evolution-value {
+    font-size: 1rem;
+  }
+}

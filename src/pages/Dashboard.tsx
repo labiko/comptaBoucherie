@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatMontantAvecDevise } from '../lib/format';
 import { DashboardCard } from '../components/DashboardCard';
+import { DashboardInvendus } from '../components/DashboardInvendus';
 import { WeekChart } from '../components/WeekChart';
 import { PaymentPieChart } from '../components/PaymentPieChart';
 import { ProgressBar } from '../components/ProgressBar';
@@ -10,7 +11,7 @@ import type { DashboardStats, WeekData, FactureRetard, FournisseurImpaye, Paymen
 import './Dashboard.css';
 
 export function Dashboard() {
-  const { user } = useAuth();
+  const { user, secteur } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [weekData, setWeekData] = useState<WeekData[]>([]);
   const [previousWeekData, setPreviousWeekData] = useState<WeekData[]>([]);
@@ -328,6 +329,9 @@ export function Dashboard() {
             <div className="success-message">✓ Aucun impayé</div>
           )}
         </DashboardCard>
+
+        {/* Invendus du mois - Boulangeries uniquement */}
+        {secteur === 'boulangerie' && <DashboardInvendus />}
       </div>
     </div>
   );
