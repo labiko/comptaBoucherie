@@ -31,13 +31,15 @@
 }
 
 .year-selector,
-.month-selector {
+.month-selector,
+.categorie-selector {
   display: flex;
   align-items: center;
 }
 
 .year-selector select,
-.month-selector select {
+.month-selector select,
+.categorie-selector select {
   padding: 8px 16px;
   border: 1px solid #DDDDDD;
   border-radius: 6px;
@@ -51,7 +53,8 @@
 }
 
 .year-selector select:focus,
-.month-selector select:focus {
+.month-selector select:focus,
+.categorie-selector select:focus {
   outline: none;
   border-color: #8B1538;
 }

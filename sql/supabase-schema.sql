@@ -27,7 +27,17 @@ CREATE TABLE public.boucheries (
   smtp_email text,
   smtp_password text,
   secteur character varying NOT NULL DEFAULT 'boucherie'::character varying,
+  mobile boolean DEFAULT false,
   CONSTRAINT boucheries_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.categories_invendus (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  nom character varying NOT NULL UNIQUE,
+  prix_moyen numeric NOT NULL,
+  actif boolean DEFAULT true,
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT categories_invendus_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.encaissements (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -112,8 +122,10 @@ CREATE TABLE public.invendus (
   note text,
   created_at timestamp without time zone DEFAULT now(),
   updated_at timestamp without time zone DEFAULT now(),
+  categorie_id uuid,
   CONSTRAINT invendus_pkey PRIMARY KEY (id),
-  CONSTRAINT invendus_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id)
+  CONSTRAINT invendus_boucherie_id_fkey FOREIGN KEY (boucherie_id) REFERENCES public.boucheries(id),
+  CONSTRAINT invendus_categorie_id_fkey FOREIGN KEY (categorie_id) REFERENCES public.categories_invendus(id)
 );
 CREATE TABLE public.tracabilite (
   id uuid NOT NULL DEFAULT gen_random_uuid(),

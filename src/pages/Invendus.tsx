@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import type { CategorieInvendu, Invendu } from '../types';
+import { format, parseISO } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import './Invendus.css';
 
 export default function Invendus() {
@@ -11,7 +13,8 @@ export default function Invendus() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
-
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [existingInvendu, setExistingInvendu] = useState<Invendu | null>(null);
 
   // Formulaire pour nouvel invendu
   const [newInvendu, setNewInvendu] = useState({
@@ -64,7 +67,7 @@ export default function Invendus() {
         .eq('boucherie_id', user.boucherie_id)
         .gte('date', firstDay)
         .lte('date', lastDay)
-        .order('date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -107,6 +110,26 @@ export default function Invendus() {
     try {
       setSaving(true);
 
+      // Vérifier si un invendu existe déjà pour cette date + catégorie
+      const { data: existing, error: checkError } = await supabase
+        .from('invendus')
+        .select('*')
+        .eq('boucherie_id', user.boucherie_id)
+        .eq('date', newInvendu.date)
+        .eq('categorie_id', newInvendu.categorie_id)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      // Si un invendu existe déjà, afficher le modal de choix
+      if (existing) {
+        setExistingInvendu(existing);
+        setShowDuplicateModal(true);
+        setSaving(false);
+        return;
+      }
+
+      // Sinon, créer normalement
       const { error } = await supabase
         .from('invendus')
         .insert({
@@ -142,6 +165,53 @@ export default function Invendus() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Action 1 : Remplacer l'existant
+  const handleReplace = async () => {
+    if (!existingInvendu) return;
+
+    try {
+      setSaving(true);
+
+      const { error } = await supabase
+        .from('invendus')
+        .update({
+          produit: newInvendu.produit,
+          quantite: newInvendu.quantite,
+          valeur_estimee: newInvendu.valeur_estimee,
+          note: newInvendu.note || null
+        })
+        .eq('id', existingInvendu.id);
+
+      if (error) throw error;
+
+      // Fermer le modal et réinitialiser
+      setShowDuplicateModal(false);
+      setExistingInvendu(null);
+      setNewInvendu({
+        date: new Date().toISOString().split('T')[0],
+        categorie_id: '',
+        produit: '',
+        quantite: 0,
+        valeur_estimee: 0,
+        note: ''
+      });
+      setShowForm(false);
+
+      await loadInvendus();
+    } catch (error) {
+      console.error('Erreur remplacement invendu:', error);
+      alert('Erreur lors du remplacement');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Action 2 : Annuler
+  const handleCancel = () => {
+    setShowDuplicateModal(false);
+    setExistingInvendu(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -312,11 +382,62 @@ export default function Invendus() {
                     </div>
                   )}
                 </div>
+                <div className="invendu-footer">
+                  <div className="created-at">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                    Créé le {format(parseISO(invendu.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         )}
       </section>
+
+      {/* Modal de choix pour les doublons */}
+      {showDuplicateModal && existingInvendu && (
+        <div className="modal-overlay" onClick={handleCancel}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>⚠️ Invendu déjà existant</h2>
+            <p>
+              Un invendu pour <strong>{newInvendu.produit}</strong> existe déjà pour le{' '}
+              <strong>{new Date(newInvendu.date).toLocaleDateString('fr-FR')}</strong>.
+            </p>
+
+            <div className="existing-info">
+              <h3>Invendu existant :</h3>
+              <p>Quantité : <strong>{existingInvendu.quantite}</strong></p>
+              <p>Valeur estimée : <strong>{existingInvendu.valeur_estimee.toFixed(2)} €</strong></p>
+            </div>
+
+            <div className="new-info">
+              <h3>Nouvelle saisie :</h3>
+              <p>Quantité : <strong>{newInvendu.quantite}</strong></p>
+              <p>Valeur estimée : <strong>{newInvendu.valeur_estimee.toFixed(2)} €</strong></p>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="btn-modal btn-replace"
+                onClick={handleReplace}
+                disabled={saving}
+              >
+                🔄 Remplacer
+              </button>
+              <button
+                className="btn-modal btn-cancel"
+                onClick={handleCancel}
+                disabled={saving}
+              >
+                ❌ Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

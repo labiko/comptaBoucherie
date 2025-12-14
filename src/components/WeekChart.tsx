@@ -75,21 +75,25 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
     return null;
   };
 
+  // Détecter si on est sur mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
   return (
     <div style={{ width: '100%' }}>
-      <div style={{ width: '100%', height: 300 }}>
+      <div style={{ width: '100%', height: isMobile ? 250 : 300 }}>
         <ResponsiveContainer>
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <BarChart data={chartData} margin={{ top: 10, right: isMobile ? 5 : 10, left: isMobile ? -10 : 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
             <XAxis
               dataKey="day"
-              tick={{ fill: '#666666', fontSize: 12 }}
+              tick={{ fill: '#666666', fontSize: isMobile ? 10 : 12 }}
               axisLine={{ stroke: '#E0E0E0' }}
             />
             <YAxis
-              tick={{ fill: '#666666', fontSize: 12 }}
+              tick={{ fill: '#666666', fontSize: isMobile ? 10 : 12 }}
               axisLine={{ stroke: '#E0E0E0' }}
-              tickFormatter={(value) => `${value}€`}
+              tickFormatter={(value) => isMobile ? `${value}` : `${value}€`}
+              width={isMobile ? 35 : 60}
             />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine
@@ -97,26 +101,26 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
               stroke="#8B1538"
               strokeDasharray="5 5"
               label={{
-                value: `Moy: ${formatMontantAvecDevise(moyenne)}`,
+                value: isMobile ? `M: ${moyenne.toFixed(0)}€` : `Moy: ${formatMontantAvecDevise(moyenne)}`,
                 position: 'right',
                 fill: '#8B1538',
-                fontSize: 12,
+                fontSize: isMobile ? 10 : 12,
               }}
             />
             {/* Barre semaine précédente (gris clair, en arrière-plan) */}
             <Bar
               dataKey="previousWeek"
               fill="#D0D0D0"
-              radius={[6, 6, 0, 0]}
-              maxBarSize={40}
+              radius={[4, 4, 0, 0]}
+              maxBarSize={isMobile ? 25 : 40}
               opacity={0.6}
             />
             {/* Barre semaine actuelle (rouge bordeaux, au premier plan) */}
             <Bar
               dataKey="currentWeek"
               fill="#8B1538"
-              radius={[6, 6, 0, 0]}
-              maxBarSize={40}
+              radius={[4, 4, 0, 0]}
+              maxBarSize={isMobile ? 25 : 40}
             />
           </BarChart>
         </ResponsiveContainer>
@@ -125,20 +129,22 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
       {/* Affichage des informations sous le graphique */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(7, 1fr)',
-        gap: '8px',
-        marginTop: '16px',
-        paddingLeft: '40px',
-        paddingRight: '10px'
+        gridTemplateColumns: isMobile ? 'repeat(4, 1fr)' : 'repeat(7, 1fr)',
+        gap: isMobile ? '4px' : '8px',
+        marginTop: '12px',
+        paddingLeft: isMobile ? '5px' : '40px',
+        paddingRight: isMobile ? '5px' : '10px',
+        overflowX: isMobile ? 'auto' : 'visible'
       }}>
         {chartData.map((item, index) => (
           <div key={index} style={{
             textAlign: 'center',
-            fontSize: '11px'
+            fontSize: isMobile ? '9px' : '11px',
+            minWidth: isMobile ? '70px' : 'auto'
           }}>
             <div style={{
               color: '#666',
-              marginBottom: '4px',
+              marginBottom: '2px',
               fontWeight: '500'
             }}>
               {item.date}
@@ -146,22 +152,22 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
             <div style={{
               color: '#8B1538',
               fontWeight: 'bold',
-              fontSize: '13px',
+              fontSize: isMobile ? '11px' : '13px',
               marginBottom: '2px'
             }}>
-              {item.currentWeek > 0 ? `${item.currentWeek.toFixed(2)}€` : '-'}
+              {item.currentWeek > 0 ? `${item.currentWeek.toFixed(0)}€` : '-'}
             </div>
             <div style={{
               color: '#999',
-              fontSize: '11px',
-              marginBottom: '4px'
+              fontSize: isMobile ? '9px' : '11px',
+              marginBottom: '2px'
             }}>
-              {item.previousWeek > 0 ? `(${item.previousWeek.toFixed(2)}€)` : ''}
+              {item.previousWeek > 0 ? `(${item.previousWeek.toFixed(0)}€)` : ''}
             </div>
             <div style={{
               color: item.evolutionPercent >= 0 ? '#2D7D4C' : '#D32F2F',
               fontWeight: '600',
-              fontSize: '12px'
+              fontSize: isMobile ? '10px' : '12px'
             }}>
               {item.currentWeek > 0 || item.previousWeek > 0
                 ? `${item.evolutionPercent >= 0 ? '+' : ''}${item.evolutionPercent.toFixed(0)}%`

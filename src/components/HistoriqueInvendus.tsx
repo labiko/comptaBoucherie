@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatMontantAvecDevise } from '../lib/format';
-import type { Invendu } from '../types';
+import type { Invendu, CategorieInvendu } from '../types';
 import { format, parseISO, startOfYear, endOfYear, startOfMonth, endOfMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import './HistoriqueInvendus.css';
@@ -13,11 +13,14 @@ export function HistoriqueInvendus() {
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+  const [selectedCategorie, setSelectedCategorie] = useState<string | 'all'>('all');
   const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [categories, setCategories] = useState<CategorieInvendu[]>([]);
 
   useEffect(() => {
     if (user) {
       loadAvailableYears();
+      loadCategories();
     }
   }, [user]);
 
@@ -25,7 +28,7 @@ export function HistoriqueInvendus() {
     if (user && selectedYear) {
       loadInvendus();
     }
-  }, [user, selectedYear, selectedMonth]);
+  }, [user, selectedYear, selectedMonth, selectedCategorie]);
 
   async function loadAvailableYears() {
     if (!user) return;
@@ -48,6 +51,21 @@ export function HistoriqueInvendus() {
     }
   }
 
+  async function loadCategories() {
+    try {
+      const { data, error } = await supabase
+        .from('categories_invendus')
+        .select('*')
+        .eq('actif', true)
+        .order('nom');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Erreur chargement catégories:', error);
+    }
+  }
+
   async function loadInvendus() {
     if (!user) return;
 
@@ -67,13 +85,19 @@ export function HistoriqueInvendus() {
         endDate = format(endOfMonth(monthDate), 'yyyy-MM-dd');
       }
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('invendus')
         .select('*')
         .eq('boucherie_id', user.boucherie_id)
         .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date', { ascending: false });
+        .lte('date', endDate);
+
+      // Ajouter le filtre par catégorie si sélectionné
+      if (selectedCategorie !== 'all') {
+        query = query.eq('categorie_id', selectedCategorie);
+      }
+
+      const { data, error } = await query.order('date', { ascending: false });
 
       if (error) throw error;
       setInvendus(data || []);
@@ -130,6 +154,15 @@ export function HistoriqueInvendus() {
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
               {months.map(month => (
                 <option key={month.value} value={month.value}>{month.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="categorie-selector">
+            <select value={selectedCategorie} onChange={(e) => setSelectedCategorie(e.target.value)}>
+              <option value="all">Toutes les catégories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.nom}</option>
               ))}
             </select>
           </div>
