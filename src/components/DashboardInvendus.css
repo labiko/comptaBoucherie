@@ -194,18 +194,79 @@
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-invendus-card {
-    padding: 1.25rem;
+    padding: 1rem;
+  }
+
+  .card-header h2 {
+    font-size: 1rem;
+  }
+
+  .total-section {
+    padding: 1rem;
+  }
+
+  .total-label {
+    font-size: 0.85rem;
   }
 
   .total-value {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+  }
+
+  .categories-section {
+    padding: 1rem;
+  }
+
+  .categories-section h3 {
+    font-size: 0.9rem;
   }
 
   .category-row {
+    font-size: 0.85rem;
+    gap: 6px;
+    padding: 0.4rem 0;
+  }
+
+  .category-name {
+    font-size: 0.85rem;
+  }
+
+  .category-value {
+    font-size: 0.85rem;
+  }
+
+  .category-row-last-week {
+    font-size: 0.8rem;
+    gap: 6px;
+    padding: 0.25rem 0 0.25rem 0.75rem;
+  }
+
+  .last-week-label {
+    font-size: 0.8rem;
+  }
+
+  .last-week-value {
+    font-size: 0.8rem;
+  }
+
+  .evolution-indicator {
+    font-size: 0.75rem;
+  }
+
+  .evolution-section {
+    padding: 1rem;
+  }
+
+  .evolution-section h3 {
     font-size: 0.9rem;
   }
 
   .evolution-value {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-details {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
   }
 }
