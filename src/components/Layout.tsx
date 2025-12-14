@@ -33,11 +33,15 @@ export function Layout({ children }: LayoutProps) {
     loadBoucherie();
   }, [user]);
 
+  // Limiter le nom de la boucherie à 10 caractères
+  const boucherieName = boucherie?.nom || 'Compta Boucherie';
+  const displayName = boucherieName.length > 10 ? boucherieName.substring(0, 10) + '...' : boucherieName;
+
   return (
     <div className="layout">
       <header className="layout-header">
         <div className="header-title">
-          <h1 className="app-title">{boucherie?.nom || 'Compta Boucherie'}</h1>
+          <h1 className="app-title" title={boucherieName}>{displayName}</h1>
           <span className="app-version">v{versionData.version}</span>
         </div>
         {user && (
