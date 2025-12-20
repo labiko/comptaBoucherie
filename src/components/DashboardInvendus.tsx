@@ -35,13 +35,15 @@ export function DashboardInvendus() {
 
       const now = new Date();
 
-      // Calculer semaine actuelle (dimanche → samedi)
-      const thisWeekStart = format(startOfWeek(now, { weekStartsOn: 0 }), 'yyyy-MM-dd');
-      const thisWeekEnd = format(endOfWeek(now, { weekStartsOn: 0 }), 'yyyy-MM-dd');
+      // Calculer semaine actuelle (lundi → dimanche)
+      // weekStartsOn: 1 = Lundi
+      const thisWeekStart = format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+      const thisWeekEnd = format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
-      // Calculer semaine dernière
-      const lastWeekStart = format(startOfWeek(subWeeks(now, 1), { weekStartsOn: 0 }), 'yyyy-MM-dd');
-      const lastWeekEnd = format(endOfWeek(subWeeks(now, 1), { weekStartsOn: 0 }), 'yyyy-MM-dd');
+      // Semaine dernière
+      const lastWeek = subWeeks(now, 1);
+      const lastWeekStart = format(startOfWeek(lastWeek, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+      const lastWeekEnd = format(endOfWeek(lastWeek, { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
       // Total semaine actuelle
       const { data: thisWeekData, error: thisWeekError } = await supabase
