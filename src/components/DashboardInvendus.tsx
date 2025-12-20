@@ -206,7 +206,7 @@ export function DashboardInvendus() {
 
         <button
           className="btn-details"
-          onClick={() => navigate('/administration')}
+          onClick={() => navigate('/administration?tab=invendus')}
         >
           Voir le détail →
         </button>

@@ -451,6 +451,8 @@ export default function Invendus() {
                   value={newInvendu.date}
                   onChange={(e) => setNewInvendu({ ...newInvendu, date: e.target.value })}
                   max={maxDate}
+                  disabled={!!editingId}
+                  className={editingId ? 'readonly-field' : ''}
                   required
                 />
               </div>

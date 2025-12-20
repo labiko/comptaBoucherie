@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { HistoriqueEncaissements } from '../components/HistoriqueEncaissements';
 import { HistoriqueFactures } from '../components/HistoriqueFactures';
@@ -14,7 +15,16 @@ type TabType = 'encaissements' | 'factures' | 'invendus' | 'fournisseurs' | 'cat
 
 export function Administration() {
   const { secteur } = useAuth();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('encaissements');
+
+  // Lire le paramètre tab depuis l'URL
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['encaissements', 'factures', 'invendus', 'fournisseurs', 'categories', 'email', 'tracabilite', 'export'].includes(tabParam)) {
+      setActiveTab(tabParam as TabType);
+    }
+  }, [searchParams]);
 
   // Pour les boulangeries, masquer certains onglets
   const isBoulangerie = secteur === 'boulangerie';
