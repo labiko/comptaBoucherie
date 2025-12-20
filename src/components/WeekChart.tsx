@@ -129,18 +129,16 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
       {/* Affichage des informations sous le graphique */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? 'repeat(4, 1fr)' : 'repeat(7, 1fr)',
-        gap: isMobile ? '4px' : '8px',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        gap: isMobile ? '2px' : '8px',
         marginTop: '12px',
-        paddingLeft: isMobile ? '5px' : '40px',
-        paddingRight: isMobile ? '5px' : '10px',
-        overflowX: isMobile ? 'auto' : 'visible'
+        paddingLeft: isMobile ? '25px' : '40px',
+        paddingRight: isMobile ? '5px' : '10px'
       }}>
         {chartData.map((item, index) => (
           <div key={index} style={{
             textAlign: 'center',
-            fontSize: isMobile ? '9px' : '11px',
-            minWidth: isMobile ? '70px' : 'auto'
+            fontSize: isMobile ? '8px' : '11px'
           }}>
             <div style={{
               color: '#666',
@@ -152,14 +150,14 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
             <div style={{
               color: '#8B1538',
               fontWeight: 'bold',
-              fontSize: isMobile ? '11px' : '13px',
+              fontSize: isMobile ? '9px' : '13px',
               marginBottom: '2px'
             }}>
               {item.currentWeek > 0 ? `${item.currentWeek.toFixed(0)}€` : '-'}
             </div>
             <div style={{
               color: '#999',
-              fontSize: isMobile ? '9px' : '11px',
+              fontSize: isMobile ? '7px' : '11px',
               marginBottom: '2px'
             }}>
               {item.previousWeek > 0 ? `(${item.previousWeek.toFixed(0)}€)` : ''}
@@ -167,7 +165,7 @@ export function WeekChart({ data, previousWeekData = [] }: WeekChartProps) {
             <div style={{
               color: item.evolutionPercent >= 0 ? '#2D7D4C' : '#D32F2F',
               fontWeight: '600',
-              fontSize: isMobile ? '10px' : '12px'
+              fontSize: isMobile ? '8px' : '12px'
             }}>
               {item.currentWeek > 0 || item.previousWeek > 0
                 ? `${item.evolutionPercent >= 0 ? '+' : ''}${item.evolutionPercent.toFixed(0)}%`
